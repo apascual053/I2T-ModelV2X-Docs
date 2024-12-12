@@ -7,8 +7,6 @@ Esta es la documentación del proyecto que esta desarrollando **Aitor Pascual** 
 
    La puesta en marcha y documentación de esta maqueta esta en desarrollo.
 
-Esto es una prueba para saber si funciona ``deploy.sh``.
-
 Contenidos
 ----------
 
