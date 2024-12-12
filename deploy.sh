@@ -27,3 +27,5 @@ rm -r ../temp/
 # Finalizar
 echo "Despliegue completado correctamente."
 
+# Cambiar a la rama main
+git checkout main
