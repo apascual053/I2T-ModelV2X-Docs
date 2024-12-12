@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Índice" href="genindex.html" /><link rel="search" title="Búsqueda" href="search.html" /><link rel="next" title="Comunicación básica y personalizada" href="basic.html" />
+<link rel="index" title="Índice" href="genindex.html" /><link rel="search" title="Búsqueda" href="search.html" /><link rel="prev" title="Documentación Maqueta V2X" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>documentación de Maqueta V2X - 0.1</title>
+        <title>Comunicación básica y personalizada - documentación de Maqueta V2X - 0.1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">documentación de Maqueta V2X - 0.1</div></a>
+      <a href="index.html"><div class="brand">documentación de Maqueta V2X - 0.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
   <span class="sidebar-brand-text">documentación de Maqueta V2X - 0.1</span>
@@ -198,8 +198,8 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Comunicación básica y personalizada</a></li>
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Comunicación básica y personalizada</a></li>
 </ul>
 
 </div>
@@ -220,7 +220,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/index.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/basic.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -240,24 +240,71 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="documentacion-maqueta-v2x">
-<h1>Documentación Maqueta V2X<a class="headerlink" href="#documentacion-maqueta-v2x" title="Link to this heading">¶</a></h1>
-<p>Esta es la documentación del proyecto que esta desarrollando <strong>Aitor Pascual</strong> dentro del grupo de investigación <a class="reference external" href="https://i2t.ehu.eus">I2T</a> de la <a class="reference external" href="https://ehu.eus">UPV/EHU</a> en el marco del proyecto europeo <a class="reference external" href="https://nancy-project.eu/">NANCY</a></p>
+          <section id="comunicacion-basica-y-personalizada">
+<h1>Comunicación básica y personalizada<a class="headerlink" href="#comunicacion-basica-y-personalizada" title="Link to this heading">¶</a></h1>
+<p>Este capítulo proporciona las instrucciones necesarias para iniciar y configurar la maqueta V2X más básicas utilizando el SDK proporcionado por el proveedor de los módulos V2X comprados por el grupo I2T, <a class="reference external" href="https://unex.com.tw/en/product/">Unex</a>.</p>
+<p>En primer lugar, lugar se va a poner en marcha la comunicación entre dos módulos V2X que intercambiarán mensajes BSM (<em>Basis Safety Message</em>). En segundo lugar, haremos uso de V2X para intercambiar mensajes personalizados, fueras de los estándares de seguridad vehicular.</p>
+<p>Para trabajar con los módulos Unex, en primera instancia, haremos uso del <strong>Entorno de desarrollo y soporte</strong> proporcionado junto al <em>hardware</em> de los propios módulos V2X. En este entorno se encuentra el siguiente material.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>v200/v2x-files/
+├── BSP
+├── DOC
+├── LTS
+└── SDK
+4 directories, 0 files
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><strong>Board Support Package (BSP).</strong> Donde se encuentran configuraciones, <em>drivers</em> y herramientas necesarias para interactuar con <em>hardware</em> específico.</p></li>
+<li><p><strong>Documentation (DOC).</strong> Donde se encuentran manuales y documentos básicos sobre los módulos utilizados y otro equipamiento Unex de la familia.</p></li>
+<li><p><strong>Long Term Support (LTS).</strong> Donde se encuentran archivos relacionados con una versión de soporte a largo plazo, como actualizaciones, parches o configuraciones para garantizar la estabilidad.</p></li>
+<li><p><strong>Software Development Kit (SDK).</strong> Incluye herramientas para trabajar con los módulos con bibliotecas, ejemplos de código y otros recursos para el desarrollo de <em>software</em> relacionado con el sistema. En este caso, la versión es la <code class="docutils literal notranslate"><span class="pre">v.200</span></code>.</p></li>
+</ol>
+<section id="comunicacion-basica">
+<h2>Comunicacion básica<a class="headerlink" href="#comunicacion-basica" title="Link to this heading">¶</a></h2>
+<div class="admonition-objetivos admonition">
+<p class="admonition-title"><strong>Objetivos</strong></p>
+<p>Poner en marcha una primera comunicación entre dos módulos V2X, creando una pequeña red celular C-V2X de tipo V2V. Para ello, intercambiar mensajes BSM.</p>
+</div>
+<p>Para llevar a cabo este objetivo se hara uso del SDK, que proporciona formatos de mensaje previamente configurados y ejemplos. Esto permite abstraerse en este ejercicio del contenido de la informacíón intercambiada.</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>La puesta en marcha y documentación de esta maqueta esta en desarrollo.</p>
+<p>En la documentación de Unex, en el apartado <em>4. Application Note</em> del capítulo <em>V2Xcast</em>, se describe qué tipos de mensajes se estandarizan tanto en EU (Unión Europea) como en US (United States). No obstante, no es de demasiado interés ya que el objetivo de este este proyecto se basa en una comunicación personalizada.</p>
 </div>
-<p>Esto es una prueba para saber si funciona <code class="docutils literal notranslate"><span class="pre">deploy.sh</span></code>.</p>
-<section id="contenidos">
-<h2>Contenidos<a class="headerlink" href="#contenidos" title="Link to this heading">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Comunicación básica y personalizada</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#comunicacion-basica">Comunicacion básica</a></li>
-</ul>
-</li>
-</ul>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>La documentación general viene en formato <code class="docutils literal notranslate"><span class="pre">html</span></code> y se puede encontrar en <code class="docutils literal notranslate"><span class="pre">v200/v2x-files/DOC/index.html</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>find<span class="w"> </span>v200/v2x-files/<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;index.html&quot;</span>
+./DOC/index.html
+</pre></div>
 </div>
+</div>
+<p>A continuación, se redactan las instrucciones de la configuración tanto del módulo transmisor como del módulo receptor.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Existe cierta correspondencia entre esta descripción y el apartado <em>1. Quick Start Guide</em> de la sección <em>V2Xcast</em> de la documentación oficial de Unex.</p>
+</div>
+<p>Para el <strong>modulo transmisor</strong>, haremos uso del siguiente material</p>
+<ol class="arabic simple">
+<li><p>Un modulo Unex C-V2X/802.11p con su respectivo adaptador USB.</p></li>
+<li><p>Una VM (máquina virtual) con Ubuntu 22.04.3 LTS (codename: <em>Jammy</em>) y arquitectura CPU <strong>x86_64</strong> gestionada por VirtualBox.</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Advertencia</p>
+<p>Para que la VM pueda reconocer el módulo, es necesario agregar un filtro de dispositivos USB en la configuración.</p>
+</div>
+<div class="admonition-que-tipo-de-arquitectura-tiene-mi-equipo admonition">
+<p class="admonition-title">¿Qué tipo de arquitectura tiene mi equipo?</p>
+<p>En Linux, para saber que tipo de arquitectura se tiene tan sólo se debe ejecutar <code class="docutils literal notranslate"><span class="pre">uname</span> <span class="pre">-m</span></code> sobre una terminal. Las respuestas típicas son: <code class="docutils literal notranslate"><span class="pre">x86_64</span></code> (x86 de 64 bits), <code class="docutils literal notranslate"><span class="pre">armv7_hf</span></code> (ARM de 32 bits) y <code class="docutils literal notranslate"><span class="pre">armv8_64</span></code> (ARM de 64 bits).</p>
+</div>
+<section id="pasos-a-seguir-en-el-modulo-transmisor">
+<h3>Pasos a seguir en el módulo transmisor<a class="headerlink" href="#pasos-a-seguir-en-el-modulo-transmisor" title="Link to this heading">¶</a></h3>
+<p>Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, <code class="docutils literal notranslate"><span class="pre">`BSM</span></code>, <code class="docutils literal notranslate"><span class="pre">`DOC</span></code>, <code class="docutils literal notranslate"><span class="pre">LTS</span></code> y <code class="docutils literal notranslate"><span class="pre">`SDK</span></code> en un directorio deseado.</p>
+<p>Dentro de la carpeta <code class="docutils literal notranslate"><span class="pre">SDK</span></code>, encontramos varios fichero <code class="docutils literal notranslate"><span class="pre">.tar</span></code>. Cada uno de ellos corresponde con un tipo de arquitectura de CPU. Para ello, se deberá extraer el fichero correspondiente a cada caso. Al descomprimir, tendremos las herramientas proporcionadas por el SDK disponibles.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>SDK/
+$<span class="w"> </span>tar<span class="w"> </span>zxvf<span class="w"> </span>us_v2xcast_sdk-x86_64_linux-v2.0.1.tgz
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
@@ -266,16 +313,18 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="basic.html">
+          
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
-                  <span>Next</span>
+                  <span>Previous</span>
                 </div>
-                <div class="title">Comunicación básica y personalizada</div>
+                
+                <div class="title">Home</div>
+                
               </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -306,8 +355,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Documentación Maqueta V2X</a><ul>
-<li><a class="reference internal" href="#contenidos">Contenidos</a></li>
+<li><a class="reference internal" href="#">Comunicación básica y personalizada</a><ul>
+<li><a class="reference internal" href="#comunicacion-basica">Comunicacion básica</a><ul>
+<li><a class="reference internal" href="#pasos-a-seguir-en-el-modulo-transmisor">Pasos a seguir en el módulo transmisor</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
