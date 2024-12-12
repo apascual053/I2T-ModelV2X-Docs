@@ -1,8 +1,3 @@
-.. Maqueta V2X documentation master file, created by
-   sphinx-quickstart on Wed Dec 11 11:52:44 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Documentación Maqueta V2X
 =========================
 
@@ -11,6 +6,8 @@ Esta es la documentación del proyecto que esta desarrollando **Aitor Pascual** 
 .. note::
 
    La puesta en marcha y documentación de esta maqueta esta en desarrollo.
+
+Esto es una prueba para saber si funciona ``deploy.sh``.
 
 Contenidos
 ----------
