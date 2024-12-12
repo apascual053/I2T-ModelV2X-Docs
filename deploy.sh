@@ -4,7 +4,7 @@
 mkdir -p ../temp
 
 # Copiar los archivos generados de la documentación a la carpeta temporal
-cp -r build/html/* ../temp/
+cp -r docs/build/html/* ../temp/
 
 # Cambiar a la rama gh-pages
 git checkout gh-pages
