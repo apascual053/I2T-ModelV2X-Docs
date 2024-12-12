@@ -6,8 +6,6 @@
 Documentación Maqueta V2X
 =========================
 
-Esta es la copia buena.
-
 Esta es la documentación del proyecto que esta desarrollando **Aitor Pascual** dentro del grupo de investigación `I2T <https://i2t.ehu.eus>`_ de la `UPV/EHU <https://ehu.eus>`_ en el marco del proyecto europeo `NANCY <https://nancy-project.eu/>`_ 
 
 .. note::
