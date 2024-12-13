@@ -432,7 +432,7 @@ Transmitted 54 bytes!
 <li><p>Una Raspberry Pi con Rapsbian y arquitectura CPU <strong>armv7_hf</strong>.</p></li>
 </ol>
 <p>En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, <code class="docutils literal notranslate"><span class="pre">BSM</span></code>, <code class="docutils literal notranslate"><span class="pre">DOC</span></code>, <code class="docutils literal notranslate"><span class="pre">LTS</span></code> y <code class="docutils literal notranslate"><span class="pre">SDK</span></code> en un directorio deseado.</p>
-<p>Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos <a class="reference internal" href="#descomprimir-sdk"><span class="std std-ref">Descomprimir el SDK</span></a>. En segundo lugar, <a class="reference internal" href="#compilar-ejemplos"><span class="std std-ref">Compilar los ficheros de ejemplo</span></a>. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además, en lugar de seleccionar la opción <code class="docutils literal notranslate"><span class="pre">x86_64</span></code>, debemos selecionar <code class="docutils literal notranslate"><span class="pre">3</span></code> ya que hacemos uso de la arquitectura <code class="docutils literal notranslate"><span class="pre">armv7_hf</span></code>.</p>
+<p>Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos <a class="reference internal" href="#descomprimir-sdk"><span class="std std-ref">Descomprimir el SDK</span></a>. En segundo lugar, <a class="reference internal" href="#compilar-ejemplos"><span class="std std-ref">Compilar los ficheros de ejemplo</span></a>. En este caso, estaremos compilando los ficheros en la Rapsberry Pi en lugar de la VM. Además, en lugar de seleccionar la opción <code class="docutils literal notranslate"><span class="pre">x86_64</span></code>, debemos selecionar <code class="docutils literal notranslate"><span class="pre">3</span></code> ya que hacemos uso de la arquitectura <code class="docutils literal notranslate"><span class="pre">armv7_hf</span></code>.</p>
 <p>Sin embargo, la forma en la que preparamos el servicio V2Xcast en el módulo es diferente (por ser un sistema con arquitectura <em>armv7_hf</em>).</p>
 <section id="id1">
 <h4>Preparar el servicio V2Xcast en el módulo<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
@@ -455,7 +455,7 @@ Transmitted 54 bytes!
 <section id="recepcion">
 <h4>Recepción<a class="headerlink" href="#recepcion" title="Link to this heading">¶</a></h4>
 <p>Continuando el la consola del módulo mediante SSH, para preparar el módulo para la transmisión, tan sólo debemos ejecutar los ficheros <code class="docutils literal notranslate"><span class="pre">.c</span></code> compilados previamente para ello.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd /home/unex/us_v2xcast_sdk/example/v2xcast_bsm</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/home/unex/us_v2xcast_sdk/example/v2xcast_bsm
 <span class="go">./v2xcast_bsm 127.0.0.1 0 0</span>
 </pre></div>
 </div>
@@ -496,6 +496,69 @@ Decoded BSM
 </section>
 <section id="comunicacion-personalizada">
 <h2>Comunicación personalizada<a class="headerlink" href="#comunicacion-personalizada" title="Link to this heading">¶</a></h2>
+<div class="admonition-objetivo admonition">
+<p class="admonition-title"><strong>Objetivo</strong></p>
+<p>Poner en marcha una primera comunicación entre dos módulos V2X, creando una pequeña red celular C-V2X de tipo V2V. Para ello, intercambiar mensajes personalizados.</p>
+</div>
+<section id="entendiendo-la-transmision-y-la-recepcion">
+<h3>Entendiendo la transmisión y la recepción<a class="headerlink" href="#entendiendo-la-transmision-y-la-recepcion" title="Link to this heading">¶</a></h3>
+<p>Despues de entender el contenido del fichero <code class="docutils literal notranslate"><span class="pre">v2xcast_bsm.c</span></code> del SDK, se ha compredido la manera de transmitir la información. Dicho código utiliza un punto de la API <em>hardware</em> que recibe diferentes parámetros entre los cuales se encuentra el dato a transmitir. Por otra parte, el modulo receptor, realiza un bucle sobre otro punto de la API que se encarga de gestionar la recepción de la recepción.</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>La información acerca de la API del SDK se puede encontrar en el apartado <em>2. US V2Xcast</em>; en concreto, <em>2.5 V2Xcast API</em>. También se puede encontrar información acerca de los <em>casters</em> que son los encargados de gestionar la transmisión y la recepción, entre otros.</p>
+</div>
+<p>Las funciones más relevantes en este aspecto son las siguientes.</p>
+<dl class="c function">
+<dt class="sig sig-object c" id="c.us_caster_tx">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">us_caster_tx</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">caster_handler_t</span></span><span class="w"> </span><span class="n"><span class="pre">caster_handler</span></span>, <span class="n"><span class="pre">us_caster_tx_info_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">tx_info</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">buf</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.us_caster_tx" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Transmite un mensaje V2X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>caster_handler</strong> – [in] indica un manejador de caster creado.</p></li>
+<li><p><strong>tx_info</strong> – [in] indica que se reemplacen las configuraciones predeterminadas con este tx_info. Si es NULL, se usan las configuraciones de TX del archivo JSON, de lo contrario, se usan las configuraciones de TX con los parámetros de tx_info.</p></li>
+<li><p><strong>buf</strong> – [in] indica el mensaje a enviar.</p></li>
+<li><p><strong>len</strong> – [in] indica el número de bytes a enviar, la longitud máxima del payload es de 1500 bytes. El tamaño de la transmisión puede superar los 1500 bytes después del procesamiento en capas inferiores. En este caso, el usuario debe reducir el tamaño del mensaje.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Devuelve<span class="colon">:</span></dt>
+<dd class="field-even"><p>El estado de la API invocada. Consulte los VALORES DE RETORNO para más detalles.</p>
+</dd>
+<dt class="field-odd">Note<span class="colon">:</span></dt>
+<dd class="field-odd"><p>El valor válido de los elementos de tx_info está descrito en los Elementos del Perfil y el Rango de Valores.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.us_caster_rx">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">us_caster_rx</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">caster_handler_t</span></span><span class="w"> </span><span class="n"><span class="pre">caster_handler</span></span>, <span class="n"><span class="pre">us_caster_rx_info_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">rx_info</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">buf</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">buf_size</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.us_caster_rx" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Recibe un mensaje V2X.</p>
+<p>Esta API bloqueará hasta que se reciba el paquete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>caster_handler</strong> – [in] indica un manejador de caster creado.</p></li>
+<li><p><strong>rx_info</strong> – [out] se utiliza para recibir la información de rx_info.</p></li>
+<li><p><strong>buf</strong> – [out] se utiliza para recibir el mensaje.</p></li>
+<li><p><strong>buf_size</strong> – [in] tamaño del búfer de entrada.</p></li>
+<li><p><strong>len</strong> – [out] indica el número de bytes recibidos.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Devuelve<span class="colon">:</span></dt>
+<dd class="field-even"><p>El estado de la API invocada.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>De estas dos funciones, lo que maś compete a este ejercicio es la variable <code class="docutils literal notranslate"><span class="pre">buf</span></code>. Es donde se deben incluir los datos a enviar en la transmisión, y donde se recibirán, en la recepción.</p>
+</section>
+<section id="tranmision-de-un-string">
+<h3>Tranmisión de un string<a class="headerlink" href="#tranmision-de-un-string" title="Link to this heading">¶</a></h3>
+</section>
+<section id="tranmision-de-un-video">
+<h3>Tranmisión de un video<a class="headerlink" href="#tranmision-de-un-video" title="Link to this heading">¶</a></h3>
+</section>
 </section>
 </section>
 
@@ -562,7 +625,12 @@ Decoded BSM
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#comunicacion-personalizada">Comunicación personalizada</a></li>
+<li><a class="reference internal" href="#comunicacion-personalizada">Comunicación personalizada</a><ul>
+<li><a class="reference internal" href="#entendiendo-la-transmision-y-la-recepcion">Entendiendo la transmisión y la recepción</a></li>
+<li><a class="reference internal" href="#tranmision-de-un-string">Tranmisión de un string</a></li>
+<li><a class="reference internal" href="#tranmision-de-un-video">Tranmisión de un video</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
