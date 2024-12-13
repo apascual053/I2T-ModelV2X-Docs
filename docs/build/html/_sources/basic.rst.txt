@@ -223,7 +223,7 @@ Para el **modulo receptor**, haremos uso del siguiente material.
 
 En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, ``BSM``, ``DOC``, ``LTS`` y ``SDK`` en un directorio deseado.
 
-Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`. En segundo lugar, :ref:`compilar_ejemplos`. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además, en lugar de seleccionar la opción ``x86_64``, debemos selecionar ``3`` ya que hacemos uso de la arquitectura ``armv7_hf``.
+Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`. En segundo lugar, :ref:`compilar_ejemplos`. En este caso, estaremos compilando los ficheros en la Rapsberry Pi en lugar de la VM. Además, en lugar de seleccionar la opción ``x86_64``, debemos selecionar ``3`` ya que hacemos uso de la arquitectura ``armv7_hf``.
 
 Sin embargo, la forma en la que preparamos el servicio V2Xcast en el módulo es diferente (por ser un sistema con arquitectura *armv7_hf*).
 
@@ -258,7 +258,7 @@ Continuando el la consola del módulo mediante SSH, para preparar el módulo par
 
 .. code-block:: console
 
-	cd /home/unex/us_v2xcast_sdk/example/v2xcast_bsm
+	$ cd /home/unex/us_v2xcast_sdk/example/v2xcast_bsm
 	./v2xcast_bsm 127.0.0.1 0 0
 
 El resultado, al recebir algun paquete, se espera que sea el siguiente:
@@ -297,3 +297,54 @@ El resultado, al recebir algun paquete, se espera que sea el siguiente:
 
 Comunicación personalizada
 --------------------------
+
+.. admonition:: **Objetivo**
+
+	Poner en marcha una primera comunicación entre dos módulos V2X, creando una pequeña red celular C-V2X de tipo V2V. Para ello, intercambiar mensajes personalizados.
+
+Entendiendo la transmisión y la recepción
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Despues de entender el contenido del fichero ``v2xcast_bsm.c`` del SDK, se ha compredido la manera de transmitir la información. Dicho código utiliza un punto de la API *hardware* que recibe diferentes parámetros entre los cuales se encuentra el dato a transmitir. Por otra parte, el modulo receptor, realiza un bucle sobre otro punto de la API que se encarga de gestionar la recepción de la recepción.
+
+.. tip::
+
+	La información acerca de la API del SDK se puede encontrar en el apartado *2. US V2Xcast*; en concreto, *2.5 V2Xcast API*. También se puede encontrar información acerca de los *casters* que son los encargados de gestionar la transmisión y la recepción, entre otros.
+
+Las funciones más relevantes en este aspecto son las siguientes.
+
+.. c:function:: int us_caster_tx(caster_handler_t caster_handler, us_caster_tx_info_t *tx_info, uint8_t *buf, size_t len)
+
+   Transmite un mensaje V2X.
+
+   :param caster_handler: [in] indica un manejador de caster creado.
+   :param tx_info: [in] indica que se reemplacen las configuraciones predeterminadas con este tx_info. Si es NULL, se usan las configuraciones de TX del archivo JSON, de lo contrario, se usan las configuraciones de TX con los parámetros de tx_info.
+   :param buf: [in] indica el mensaje a enviar.
+   :param len: [in] indica el número de bytes a enviar, la longitud máxima del payload es de 1500 bytes. El tamaño de la transmisión puede superar los 1500 bytes después del procesamiento en capas inferiores. En este caso, el usuario debe reducir el tamaño del mensaje.
+
+   :return: El estado de la API invocada. Consulte los VALORES DE RETORNO para más detalles.
+
+   :note: El valor válido de los elementos de tx_info está descrito en los Elementos del Perfil y el Rango de Valores.
+
+.. c:function:: int us_caster_rx(caster_handler_t caster_handler, us_caster_rx_info_t *rx_info, uint8_t *buf, size_t buf_size, size_t *len)
+
+   Recibe un mensaje V2X.
+
+   Esta API bloqueará hasta que se reciba el paquete.
+
+   :param caster_handler: [in] indica un manejador de caster creado.
+   :param rx_info: [out] se utiliza para recibir la información de rx_info.
+   :param buf: [out] se utiliza para recibir el mensaje.
+   :param buf_size: [in] tamaño del búfer de entrada.
+   :param len: [out] indica el número de bytes recibidos.
+
+   :return: El estado de la API invocada.
+
+De estas dos funciones, lo que maś compete a este ejercicio es la variable ``buf``. Es donde se deben incluir los datos a enviar en la transmisión, y donde se recibirán, en la recepción.
+
+
+Tranmisión de un string
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Tranmisión de un video
+^^^^^^^^^^^^^^^^^^^^^^
