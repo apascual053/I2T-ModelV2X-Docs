@@ -62,6 +62,8 @@ Pasos a seguir en el módulo transmisor
 
 Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, ``BSM``, ``DOC``, ``LTS`` y ``SDK`` en un directorio deseado.
 
+.. _descomprimir_sdk:
+
 Descomprimir el SDK
 """""""""""""""""""
 
@@ -88,8 +90,10 @@ Dentro de este directorio encontramos los siguiente:
 
 	7 directories, 1 file
 
-Compilar los ficheros de ejemplo en la VM
-"""""""""""""""""""""""""""""""""""""""""
+.. _compilar_ejemplos:
+
+Compilar los ficheros de ejemplo
+""""""""""""""""""""""""""""""""
 
 Para este ejercicio vamos a hacer uso de los ejemplos de la carpeta ``example``, donde se alojan varios directorio que incluyen ficheros ``.c`` asociados a las interacciones de diferentes tipos de mensajes estándarizados.
 
@@ -114,7 +118,7 @@ Para este ejercicio vamos a hacer uso de los ejemplos de la carpeta ``example``,
 
 	14 directories, 1 file
 
-Al ejecutar ``Makefile`` estaremos compilando todos estos ficheros.
+Al ejecutar ``Makefile`` estaremos compilando todos estos ficheros en la VM.
 
 .. code-block:: console
 
@@ -219,4 +223,8 @@ Para el **modulo receptor**, haremos uso del siguiente material.
 
 En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, ``BSM``, ``DOC``, ``LTS`` y ``SDK`` en un directorio deseado.
 
-Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`.
+Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`. En segundo lugar, :ref:`_compilar_ejemplos`. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además, 
+
+.. warning::
+
+	Iñigo no toques esto!!

@@ -291,9 +291,9 @@
 </div>
 <section id="pasos-a-seguir-en-el-modulo-transmisor">
 <h3>Pasos a seguir en el módulo transmisor<a class="headerlink" href="#pasos-a-seguir-en-el-modulo-transmisor" title="Link to this heading">¶</a></h3>
-<p>Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, <code class="docutils literal notranslate"><span class="pre">`BSM</span></code>, <code class="docutils literal notranslate"><span class="pre">`DOC</span></code>, <code class="docutils literal notranslate"><span class="pre">LTS</span></code> y <code class="docutils literal notranslate"><span class="pre">`SDK</span></code> en un directorio deseado.</p>
+<p>Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, <code class="docutils literal notranslate"><span class="pre">BSM</span></code>, <code class="docutils literal notranslate"><span class="pre">DOC</span></code>, <code class="docutils literal notranslate"><span class="pre">LTS</span></code> y <code class="docutils literal notranslate"><span class="pre">SDK</span></code> en un directorio deseado.</p>
 <section id="descomprimir-el-sdk">
-<h4>Descomprimir el SDK<a class="headerlink" href="#descomprimir-el-sdk" title="Link to this heading">¶</a></h4>
+<span id="descomprimir-sdk"></span><h4>Descomprimir el SDK<a class="headerlink" href="#descomprimir-el-sdk" title="Link to this heading">¶</a></h4>
 <p>Dentro de la carpeta <code class="docutils literal notranslate"><span class="pre">SDK</span></code>, encontramos varios fichero <code class="docutils literal notranslate"><span class="pre">.tar</span></code>. Cada uno de ellos corresponde con un tipo de arquitectura de CPU. Para ello, se deberá extraer el fichero correspondiente a cada caso. Al descomprimir, tendremos las herramientas proporcionadas por el SDK disponibles.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>SDK/
 <span class="gp">$ </span>tar<span class="w"> </span>zxvf<span class="w"> </span>us_v2xcast_sdk-x86_64_linux-v2.0.1.tgz
@@ -314,8 +314,8 @@
 </pre></div>
 </div>
 </section>
-<section id="compilar-los-ficheros-de-ejemplo-en-la-vm">
-<h4>Compilar los ficheros de ejemplo en la VM<a class="headerlink" href="#compilar-los-ficheros-de-ejemplo-en-la-vm" title="Link to this heading">¶</a></h4>
+<section id="compilar-los-ficheros-de-ejemplo">
+<span id="compilar-ejemplos"></span><h4>Compilar los ficheros de ejemplo<a class="headerlink" href="#compilar-los-ficheros-de-ejemplo" title="Link to this heading">¶</a></h4>
 <p>Para este ejercicio vamos a hacer uso de los ejemplos de la carpeta <code class="docutils literal notranslate"><span class="pre">example</span></code>, donde se alojan varios directorio que incluyen ficheros <code class="docutils literal notranslate"><span class="pre">.c</span></code> asociados a las interacciones de diferentes tipos de mensajes estándarizados.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>example
 ├── libj2735msg
@@ -337,7 +337,7 @@
 14 directories, 1 file
 </pre></div>
 </div>
-<p>Al ejecutar <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> estaremos compilando todos estos ficheros.</p>
+<p>Al ejecutar <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> estaremos compilando todos estos ficheros en la VM.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>us_v2xcast_sdk/example
 <span class="gp">$ </span>make
 <span class="go">Users shall select the platform at the first execution</span>
@@ -352,7 +352,7 @@
 <section id="preparar-el-servicio-v2xcast-en-el-modulo">
 <h4>Preparar el servicio V2Xcast en el modulo<a class="headerlink" href="#preparar-el-servicio-v2xcast-en-el-modulo" title="Link to this heading">¶</a></h4>
 <p>Una vez tenemos los ficheros preparados, debemos configurar el modulo para la transmisión.</p>
-<p>El intercambio de información entre el host (VM) y el módulo se lleva a cabo mediante paquetes <code class="docutils literal notranslate"><span class="pre">IP</span></code> sobre <code class="docutils literal notranslate"><span class="pre">USB</span></code> haciendo uso la tecnologia <code class="docutils literal notranslate"><span class="pre">RNDIS/NCM</span></code>. Esta tecnologia es transparente para la gestión del módulo. No obstante, es útil entender porque las comunicaciones con host-módulo se ejecutan mediante protocolos y herramientas de red.</p>
+<p>El intercambio de información entre el host (VM) y el módulo se lleva a cabo mediante paquetes <code class="docutils literal notranslate"><span class="pre">IP</span></code> sobre <code class="docutils literal notranslate"><span class="pre">USB</span></code> haciendo uso la tecnologia <code class="docutils literal notranslate"><span class="pre">RNDIS/NCM</span></code>. Esta tecnologia es transparente para la gestión del módulo. No obstante, es útil entender porque las comunicaciones host-módulo se ejecutan mediante protocolos y herramientas de red.</p>
 <div class="admonition-que-es-la-tencologia-rndis-ncm admonition">
 <p class="admonition-title">¿Que es la tencología RNDIS/NCM?</p>
 <p>Por un lado, RNDIS (<em>Remote Network Drive Interface Specification</em>) permite que un dispositivo actue como una interfaz de red virtual a través de USB, creando una conexión similar a Ethernet. Por otro lado, NCM (<em>Network Control Model</em>) es un estándar más eficiente desarrollado por <code class="docutils literal notranslate"><span class="pre">USB-IF</span></code> para transferencias de datos en redes a través de USB, diseñado para maximizar la velocidad.</p>
@@ -370,7 +370,7 @@
 </section>
 <section id="transmicion-periodica">
 <h4>Transmición periódica<a class="headerlink" href="#transmicion-periodica" title="Link to this heading">¶</a></h4>
-<p>Para comenzar a realizar una transmisión periódica de mensaje BSM, tan sólo debemos ejecutar los correspondientes fichero <code class="docutils literal notranslate"><span class="pre">.c</span> <span class="pre">``</span> <span class="pre">que</span> <span class="pre">previamente</span> <span class="pre">hemos</span> <span class="pre">compilado.</span> <span class="pre">A</span> <span class="pre">estos,</span> <span class="pre">le</span> <span class="pre">debemos</span> <span class="pre">pasar</span> <span class="pre">como</span> <span class="pre">parámetros</span> <span class="pre">la</span> <span class="pre">dirección</span> <span class="pre">de</span> <span class="pre">comunicación</span> <span class="pre">del</span> <span class="pre">módulo</span> <span class="pre">(``192.168.1.3</span></code>), el rol que toma el módulo (<code class="docutils literal notranslate"><span class="pre">0</span></code> para recibir, <code class="docutils literal notranslate"><span class="pre">1</span></code> para enviar) y un <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p>Para comenzar a realizar una transmisión periódica de mensaje BSM, tan sólo debemos ejecutar los correspondientes fichero <code class="docutils literal notranslate"><span class="pre">.c</span></code> que previamente hemos compilado. A estos, le debemos pasar como parámetros la dirección de comunicación del módulo (<code class="docutils literal notranslate"><span class="pre">192.168.1.3</span></code>), el rol que toma el módulo (<code class="docutils literal notranslate"><span class="pre">0</span></code> para recibir, <code class="docutils literal notranslate"><span class="pre">1</span></code> para enviar) y un <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>us_v2xcast_sdk/example/v2xcast_bsm
 <span class="gp">$ </span>./v2xcast_bsm<span class="w"> </span><span class="m">192</span>.168.1.3<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">0</span>
 </pre></div>
@@ -426,6 +426,17 @@ Transmitted 54 bytes!
 </section>
 <section id="pasos-a-seguir-en-el-modulo-receptor">
 <h3>Pasos a seguir en el módulo receptor<a class="headerlink" href="#pasos-a-seguir-en-el-modulo-receptor" title="Link to this heading">¶</a></h3>
+<p>Para el <strong>modulo receptor</strong>, haremos uso del siguiente material.</p>
+<ol class="arabic simple">
+<li><p>Un módulo Unec C-V2X/802.11p con su respectivo adaptador USB.</p></li>
+<li><p>Una Raspberry Pi con Rapsbian y arquitectura CPU <strong>armv7_hf</strong>.</p></li>
+</ol>
+<p>En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, <code class="docutils literal notranslate"><span class="pre">BSM</span></code>, <code class="docutils literal notranslate"><span class="pre">DOC</span></code>, <code class="docutils literal notranslate"><span class="pre">LTS</span></code> y <code class="docutils literal notranslate"><span class="pre">SDK</span></code> en un directorio deseado.</p>
+<p>Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos <a class="reference internal" href="#descomprimir-sdk"><span class="std std-ref">Descomprimir el SDK</span></a>. En segundo lugar, <span class="xref std std-ref">_compilar_ejemplos</span>. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además,</p>
+<div class="admonition warning">
+<p class="admonition-title">Advertencia</p>
+<p>Iñigo no toques esto!!</p>
+</div>
 </section>
 </section>
 </section>
@@ -481,7 +492,7 @@ Transmitted 54 bytes!
 <li><a class="reference internal" href="#comunicacion-basica">Comunicacion básica</a><ul>
 <li><a class="reference internal" href="#pasos-a-seguir-en-el-modulo-transmisor">Pasos a seguir en el módulo transmisor</a><ul>
 <li><a class="reference internal" href="#descomprimir-el-sdk">Descomprimir el SDK</a></li>
-<li><a class="reference internal" href="#compilar-los-ficheros-de-ejemplo-en-la-vm">Compilar los ficheros de ejemplo en la VM</a></li>
+<li><a class="reference internal" href="#compilar-los-ficheros-de-ejemplo">Compilar los ficheros de ejemplo</a></li>
 <li><a class="reference internal" href="#preparar-el-servicio-v2xcast-en-el-modulo">Preparar el servicio V2Xcast en el modulo</a></li>
 <li><a class="reference internal" href="#transmicion-periodica">Transmición periódica</a></li>
 </ul>
