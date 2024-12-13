@@ -256,7 +256,7 @@ Recepción
 
 Continuando el la consola del módulo mediante SSH, para preparar el módulo para la transmisión, tan sólo debemos ejecutar los ficheros ``.c`` compilados previamente para ello.
 
-.. code-block::console
+.. code-block:: console
 
 	cd /home/unex/us_v2xcast_sdk/example/v2xcast_bsm
 	./v2xcast_bsm 127.0.0.1 0 0
