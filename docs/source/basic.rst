@@ -24,7 +24,7 @@ Para trabajar con los módulos Unex, en primera instancia, haremos uso del **Ent
 Comunicacion básica
 -------------------
 
-.. admonition:: **Objetivos**
+.. admonition:: **Objetivo**
 
    Poner en marcha una primera comunicación entre dos módulos V2X, creando una pequeña red celular C-V2X de tipo V2V. Para ello, intercambiar mensajes BSM.
 
@@ -32,22 +32,17 @@ Para llevar a cabo este objetivo se hara uso del SDK, que proporciona formatos d
 
 .. note::
 
-	En la documentación de Unex, en el apartado *4. Application Note* del capítulo *V2Xcast*, se describe qué tipos de mensajes se estandarizan tanto en EU (Unión Europea) como en US (United States). No obstante, no es de demasiado interés ya que el objetivo de este este proyecto se basa en una comunicación personalizada.
-
-.. tip::
-
 	La documentación general viene en formato ``html`` y se puede encontrar en ``v200/v2x-files/DOC/index.html``.
 
-	.. code-block:: bash
+	.. code-block:: console
 
 		$ find v200/v2x-files/ -name "index.html"
 		./DOC/index.html
 
-A continuación, se redactan las instrucciones de la configuración tanto del módulo transmisor como del módulo receptor.
-
-.. note::
+	En el apartado *4. Application Note* del capítulo *V2Xcast*, se describe qué tipos de mensajes se estandarizan tanto en EU (Unión Europea) como en US (United States). No obstante, no es de demasiado interés ya que el objetivo de este este proyecto se basa en una comunicación personalizada.
 
 	Existe cierta correspondencia entre esta descripción y el apartado *1. Quick Start Guide* de la sección *V2Xcast* de la documentación oficial de Unex.
+
 
 Para el **modulo transmisor**, haremos uso del siguiente material
 
@@ -67,9 +62,152 @@ Pasos a seguir en el módulo transmisor
 
 Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, ```BSM``, ```DOC``, ``LTS`` y ```SDK`` en un directorio deseado.
 
+Descomprimir el SDK
+"""""""""""""""""""
+
 Dentro de la carpeta ``SDK``, encontramos varios fichero ``.tar``. Cada uno de ellos corresponde con un tipo de arquitectura de CPU. Para ello, se deberá extraer el fichero correspondiente a cada caso. Al descomprimir, tendremos las herramientas proporcionadas por el SDK disponibles.
 
-.. code-block:: bash
+.. code-block:: console
 
 	$ cd SDK/
 	$ tar zxvf us_v2xcast_sdk-x86_64_linux-v2.0.1.tgz
+
+Dentro de este directorio encontramos los siguiente:
+
+.. code-block:: text
+
+	us_v2xcast_sdk
+	├── bin
+	├── demo_certificates
+	├── example
+	├── inc
+	├── lib
+	├── sh
+	├── tool
+	└── VERSION.txt
+
+	7 directories, 1 file
+
+Compilar los ficheros de ejemplo en la VM
+"""""""""""""""""""""""""""""""""""""""""
+
+Para este ejercicio vamos a hacer uso de los ejemplos de la carpeta ``example``, donde se alojan varios directorio que incluyen ficheros ``.c`` asociados a las interacciones de diferentes tipos de mensajes estándarizados.
+
+.. code-block:: text
+
+	example
+	├── libj2735msg
+	├── Makefile
+	├── v2xcast_bsm
+	├── v2xcast_event_detector_us
+	├── v2xcast_map
+	├── v2xcast_multiple_subscrible_us
+	├── v2xcast_probe_data_collection
+	├── v2xcast_rtcm
+	├── v2xcast_rtk_application_us
+	├── v2xcast_spat
+	├── v2xcast_static_memory_usage_us
+	├── v2xcast_tim
+	├── v2xcast_traffic_signal_detector_us
+	├── v2xcast_tsp
+	└── v2xcast_txrx_us
+
+	14 directories, 1 file
+
+Al ejecutar ``Makefile`` estaremos compilando todos estos ficheros.
+
+.. code-block:: console
+
+	$ cd us_v2xcast_sdk/example
+	$ make 
+	Users shall select the platform at the first execution
+	1. x86_64, 2. armv7_hf, 3. armv8_64, 4. vtx351, 5. vtx352 (type range: 1 ~ 5): 1
+
+.. note::
+
+	Por defecto, ``make`` guardara este valor en memoria para no tener que volver a ser introducido. En caso de querer recompilar estos fichero para otras arquitecturas se puede volver al estado inicial mediante ``$ make reset``.
+
+Preparar el servicio V2Xcast en el modulo
+"""""""""""""""""""""""""""""""""""""""""
+
+Una vez tenemos los ficheros preparados, debemos configurar el modulo para la transmisión.
+
+El intercambio de información entre el host (VM) y el módulo se lleva a cabo mediante paquetes ``IP`` sobre ``USB`` haciendo uso la tecnologia ``RNDIS/NCM``. Esta tecnologia es transparente para la gestión del módulo. No obstante, es útil entender porque las comunicaciones con host-módulo se ejecutan mediante protocolos y herramientas de red.
+
+.. admonition:: ¿Que es la tencología RNDIS/NCM?
+
+	Por un lado, RNDIS (*Remote Network Drive Interface Specification*) permite que un dispositivo actue como una interfaz de red virtual a través de USB, creando una conexión similar a Ethernet. Por otro lado, NCM (*Network Control Model*) es un estándar más eficiente desarrollado por ``USB-IF`` para transferencias de datos en redes a través de USB, diseñado para maximizar la velocidad.
+
+.. warning::
+
+	Antes de configurar directamente el servicio V2Xcast, debemos comprobar que existe conectividad con el módulo. Para ello, simplemente verificamos que se puede llevar a cabo un ``ping``. El módulo, por defecto, el módulo se asigna a sí mismo la dirección ``192.168.1.3``.
+
+Para crear el servicio V2Xcast, debemos subir un fichero ``.json`` con las características de la comunicación deseada. En el caso de este primer ejemplo, el fichero está ya preparado y se encuentra en ``us_v2xcast_sdk/bin/bsm_adhoc.json``. Por tanto, sólo debemos subirlo al módulo. Esto se puede realizar a través del programa ``v2xcast_manager`` proporcionado en el SDK. Este programa incorpora herramientas de red y facilita la gestión del módulo.
+
+.. code-block:: console
+
+	$ cd us_v2xcast_sdk/bin
+	$ ./ v2xcast_manager -m post -f ./ dsrc / bsm . json 192.168.1.3/ cfg / v2xcast
+	Uploading US V2Xcast config successful
+
+Transmición periódica
+"""""""""""""""""""""
+
+Para comenzar a realizar una transmisión periódica de mensaje BSM, tan sólo debemos ejecutar los correspondientes fichero ``.c `` que previamente hemos compilado. A estos, le debemos pasar como parámetros la dirección de comunicación del módulo (``192.168.1.3``), el rol que toma el módulo (``0`` para recibir, ``1`` para enviar) y un ``0``.
+
+.. code-block:: console
+
+	$ cd us_v2xcast_sdk/example/v2xcast_bsm
+	$ ./v2xcast_bsm 192.168.1.3 1 0
+
+Una vez el módulo está transmitiendo el resultado esperado es el siguiente:
+
+.. code-block:: text
+
+	connect to server 192.168.1.3:30001 with identity v2xcast_bsm@12-23 06:24:49
+	-----------------------
+	Index 0, token {
+	      "id": "abcd",
+	      "tractionControlStatus": 3,
+	      "antiLockBrakeStatus": 3,
+	      "stabilityControlStatus": 3,
+	      "vehicleSafetyExtensions": {
+	        "option": 1,
+	        "rightTurnSignalOn": 1,
+	        "leftTurnSignalOn": 0
+	      },
+	      "specialVehicleExtensions": {
+	        "option": 1,
+	        "lightBarInUse": 1,
+	        "sirenInUse": 2
+	      }
+	    }
+	BSM id: abcd, tractionControlStatus: 3, antiLockBrakeStatus: 3, stabilityControlStatus: 3, vehicleSafetyExtensions_option: 1, rightTurnSignalOn: 1, leftTurnSignalOn: 0, specialVehicleExtensions_option: 1,lightBarInUse: 1, sirenInUse: 2
+	message count 1
+
+	coreData.secMark: 50700
+	coreData.long: 121.035425
+	coreData.lat: 24.808811
+	12-23 06:24:50.779  6254  6257 D J2735 UPER_ENCODE
+
+	encode successfully
+	BSM encoded data:
+
+	00 14 33 40 58 58 98 D9 31 83 22 37 37 97 59 B7
+	2E 26 08 00 00 00 00 00 00 00 00 00 7E 7D 07 D0
+	7F 7F FF 17 E0 00 00 01 00 1D 64 00 20 F9 D9 02
+	00 10 34 20 88 20
+
+	Transmitted 54 bytes!
+	-----------------------
+
+.. warning::
+	
+	Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoger información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).
+
+.. note::
+	
+	Destacar que en esta transmisión las llamadas a la API del SDK que realizan los ficheros ``.c`` se ejecutan directamente sobre la VM de Linux y **NO** sobre el módulo.
+
+Pasos a seguir en el módulo receptor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
