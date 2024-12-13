@@ -60,7 +60,7 @@ Para el **modulo transmisor**, haremos uso del siguiente material
 Pasos a seguir en el módulo transmisor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, ``BSM``, ``DOC``, ``LTS`` y ``SDK`` en un directorio deseado.
+Dentro de la VM de Ubuntu, colocamos los ficheros del entorno de desarrollo, ```BSM``, ```DOC``, ``LTS`` y ```SDK`` en un directorio deseado.
 
 Descomprimir el SDK
 """""""""""""""""""
@@ -132,7 +132,7 @@ Preparar el servicio V2Xcast en el modulo
 
 Una vez tenemos los ficheros preparados, debemos configurar el modulo para la transmisión.
 
-El intercambio de información entre el host (VM) y el módulo se lleva a cabo mediante paquetes ``IP`` sobre ``USB`` haciendo uso la tecnologia ``RNDIS/NCM``. Esta tecnologia es transparente para la gestión del módulo. No obstante, es útil entender porque las comunicaciones host-módulo se ejecutan mediante protocolos y herramientas de red.
+El intercambio de información entre el host (VM) y el módulo se lleva a cabo mediante paquetes ``IP`` sobre ``USB`` haciendo uso la tecnologia ``RNDIS/NCM``. Esta tecnologia es transparente para la gestión del módulo. No obstante, es útil entender porque las comunicaciones con host-módulo se ejecutan mediante protocolos y herramientas de red.
 
 .. admonition:: ¿Que es la tencología RNDIS/NCM?
 
@@ -153,7 +153,7 @@ Para crear el servicio V2Xcast, debemos subir un fichero ``.json`` con las carac
 Transmición periódica
 """""""""""""""""""""
 
-Para comenzar a realizar una transmisión periódica de mensaje BSM, tan sólo debemos ejecutar los correspondientes fichero ``.c`` que previamente hemos compilado. A estos, le debemos pasar como parámetros la dirección de comunicación del módulo (``192.168.1.3``), el rol que toma el módulo (``0`` para recibir, ``1`` para enviar) y un ``0``.
+Para comenzar a realizar una transmisión periódica de mensaje BSM, tan sólo debemos ejecutar los correspondientes fichero ``.c `` que previamente hemos compilado. A estos, le debemos pasar como parámetros la dirección de comunicación del módulo (``192.168.1.3``), el rol que toma el módulo (``0`` para recibir, ``1`` para enviar) y un ``0``.
 
 .. code-block:: console
 
@@ -211,12 +211,3 @@ Una vez el módulo está transmitiendo el resultado esperado es el siguiente:
 
 Pasos a seguir en el módulo receptor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Para el **modulo receptor**, haremos uso del siguiente material.
-
-1. Un módulo Unec C-V2X/802.11p con su respectivo adaptador USB.
-2. Una Raspberry Pi con Rapsbian y arquitectura CPU **armv7_hf**.
-
-En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, ``BSM``, ``DOC``, ``LTS`` y ``SDK`` en un directorio deseado.
-
-Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`.
