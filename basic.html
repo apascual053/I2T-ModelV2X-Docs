@@ -363,7 +363,7 @@
 </div>
 <p>Para crear el servicio V2Xcast, debemos subir un fichero <code class="docutils literal notranslate"><span class="pre">.json</span></code> con las características de la comunicación deseada. En el caso de este primer ejemplo, el fichero está ya preparado y se encuentra en <code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk/bin/bsm_adhoc.json</span></code>. Por tanto, sólo debemos subirlo al módulo. Esto se puede realizar a través del programa <code class="docutils literal notranslate"><span class="pre">v2xcast_manager</span></code> proporcionado en el SDK. Este programa incorpora herramientas de red y facilita la gestión del módulo.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>us_v2xcast_sdk/bin
-<span class="gp">$ </span>./<span class="w"> </span>v2xcast_manager<span class="w"> </span>-m<span class="w"> </span>post<span class="w"> </span>-f<span class="w"> </span>./<span class="w"> </span>dsrc<span class="w"> </span>/<span class="w"> </span>bsm<span class="w"> </span>.<span class="w"> </span>json<span class="w"> </span><span class="m">192</span>.168.1.3/<span class="w"> </span>cfg<span class="w"> </span>/<span class="w"> </span>v2xcast
+<span class="gp">$ </span>./<span class="w"> </span>v2xcast_manager<span class="w"> </span>-m<span class="w"> </span>post<span class="w"> </span>-f<span class="w"> </span>./cv2x/bsm_adhoc.json<span class="w"> </span><span class="m">192</span>.168.1.3/cfg/v2xcast
 <span class="go">Uploading US V2Xcast config successful</span>
 </pre></div>
 </div>
@@ -416,7 +416,7 @@ Transmitted 54 bytes!
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Advertencia</p>
-<p>Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoger información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).</p>
+<p>Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoge información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
@@ -432,12 +432,66 @@ Transmitted 54 bytes!
 <li><p>Una Raspberry Pi con Rapsbian y arquitectura CPU <strong>armv7_hf</strong>.</p></li>
 </ol>
 <p>En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, <code class="docutils literal notranslate"><span class="pre">BSM</span></code>, <code class="docutils literal notranslate"><span class="pre">DOC</span></code>, <code class="docutils literal notranslate"><span class="pre">LTS</span></code> y <code class="docutils literal notranslate"><span class="pre">SDK</span></code> en un directorio deseado.</p>
-<p>Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos <a class="reference internal" href="#descomprimir-sdk"><span class="std std-ref">Descomprimir el SDK</span></a>. En segundo lugar, <span class="xref std std-ref">_compilar_ejemplos</span>. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además,</p>
-<div class="admonition warning">
-<p class="admonition-title">Advertencia</p>
-<p>Iñigo no toques esto!!</p>
+<p>Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos <a class="reference internal" href="#descomprimir-sdk"><span class="std std-ref">Descomprimir el SDK</span></a>. En segundo lugar, <a class="reference internal" href="#compilar-ejemplos"><span class="std std-ref">Compilar los ficheros de ejemplo</span></a>. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además, en lugar de seleccionar la opción <code class="docutils literal notranslate"><span class="pre">x86_64</span></code>, debemos selecionar <code class="docutils literal notranslate"><span class="pre">3</span></code> ya que hacemos uso de la arquitectura <code class="docutils literal notranslate"><span class="pre">armv7_hf</span></code>.</p>
+<p>Sin embargo, la forma en la que preparamos el servicio V2Xcast en el módulo es diferente (por ser un sistema con arquitectura <em>armv7_hf</em>).</p>
+<section id="id1">
+<h4>Preparar el servicio V2Xcast en el módulo<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
+<p>Para subir el fichero <code class="docutils literal notranslate"><span class="pre">bsm_adhoc.json</span></code> y configurar el servicio (las características de la comunicación V2X) haremos uso de SCP (<em>Secure Copy Protocol</em>). Dado que el módulo tiene asignada la dirección <code class="docutils literal notranslate"><span class="pre">192.168.1.3</span></code>, podemos copiar de forma recursviva toda el contenido bajo <code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk</span></code> en el módulo.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>us_v2xcast_sdk/
+<span class="gp">$ </span>scp<span class="w"> </span>-r<span class="w"> </span>us_v2xcast_sdk<span class="w"> </span>root@192.168.1.3:/home/unex
+</pre></div>
+</div>
+<p>Posteriormente, nos conectaremos al módulo a través de SSH.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ssh<span class="w"> </span>root@192.168.1.3
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/home/unex/us_v2xcast_sdk
+</pre></div>
+</div>
+<p>Y ahora, desde el propio modulo, subiremos el fichero <code class="docutils literal notranslate"><span class="pre">bsm_adhoc.json</span></code> a través del propio gestor del SDK.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./v2xcast_manager<span class="w"> </span>-m<span class="w"> </span>post<span class="w"> </span>-f<span class="w"> </span>./cv2x/bsd_adhoc.sjon
+<span class="go">Uploading US V2Xcast config successful</span>
+</pre></div>
 </div>
 </section>
+<section id="recepcion">
+<h4>Recepción<a class="headerlink" href="#recepcion" title="Link to this heading">¶</a></h4>
+<p>Continuando el la consola del módulo mediante SSH, para preparar el módulo para la transmisión, tan sólo debemos ejecutar los ficheros <code class="docutils literal notranslate"><span class="pre">.c</span></code> compilados previamente para ello.</p>
+<p>El resultado, al recebir algun paquete, se espera que sea el siguiente:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>connect to server 127.0.0.1:30002
+-----------------------
+Received 54 bytes!
+BSM decoding data:
+
+00 14 33 40 18 58 98 D9 09 DC E2 37 51 D8 D9 B7
+36 FE 08 00 00 00 00 00 00 00 00 00 7E 7D 07 D0
+7F 7F FF 17 E0 00 00 01 00 1D 64 00 20 F9 D9 02
+00 10 34 20 88 20
+
+Decoded BSM
+  coreData.msgCnt: 1
+  coreData.id: 61626364
+  secMark: 10099
+  transmission: 0
+  partII[0]:
+    partII_Id: 0
+     case VehicleSafetyExt: 3
+  partII[1]:
+    partII_Id: 1
+-----------------------
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Advertencia</p>
+<p>Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoge información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Destacar que en esta recepción las llamadas a la API del SDK que realizan los ficheros <code class="docutils literal notranslate"><span class="pre">.c</span></code> se ejecutan sobre el módulo y <strong>NO</strong> sobre la Raspeberry Pi. Esto puede llegar a suponer un obstáculo ya que las capacidad del módulo es limidada (se trata de un sistema embebido).</p>
+</div>
+</section>
+</section>
+</section>
+<section id="comunicacion-personalizada">
+<h2>Comunicación personalizada<a class="headerlink" href="#comunicacion-personalizada" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -497,9 +551,14 @@ Transmitted 54 bytes!
 <li><a class="reference internal" href="#transmicion-periodica">Transmición periódica</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pasos-a-seguir-en-el-modulo-receptor">Pasos a seguir en el módulo receptor</a></li>
+<li><a class="reference internal" href="#pasos-a-seguir-en-el-modulo-receptor">Pasos a seguir en el módulo receptor</a><ul>
+<li><a class="reference internal" href="#id1">Preparar el servicio V2Xcast en el módulo</a></li>
+<li><a class="reference internal" href="#recepcion">Recepción</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a class="reference internal" href="#comunicacion-personalizada">Comunicación personalizada</a></li>
 </ul>
 </li>
 </ul>
