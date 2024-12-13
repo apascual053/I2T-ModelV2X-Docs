@@ -151,7 +151,7 @@ Para crear el servicio V2Xcast, debemos subir un fichero ``.json`` con las carac
 .. code-block:: console
 
 	$ cd us_v2xcast_sdk/bin
-	$ ./ v2xcast_manager -m post -f ./ dsrc / bsm . json 192.168.1.3/ cfg / v2xcast
+	$ ./ v2xcast_manager -m post -f ./cv2x/bsm_adhoc.json 192.168.1.3/cfg/v2xcast
 	Uploading US V2Xcast config successful
 
 Transmición periódica
@@ -207,7 +207,7 @@ Una vez el módulo está transmitiendo el resultado esperado es el siguiente:
 
 .. warning::
 	
-	Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoger información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).
+	Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoge información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).
 
 .. note::
 	
@@ -223,8 +223,77 @@ Para el **modulo receptor**, haremos uso del siguiente material.
 
 En la Raspberry Pi, colocamos los ficheros del entorno de desarrollo, ``BSM``, ``DOC``, ``LTS`` y ``SDK`` en un directorio deseado.
 
-Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`. En segundo lugar, :ref:`_compilar_ejemplos`. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además, 
+Los pasos a seguir son similares al caso del transmisor. En primer lugar debemos :ref:`descomprimir_sdk`. En segundo lugar, :ref:`compilar_ejemplos`. En este caso, estaremos compilando los fichero en la Rapsberry Pi en lugar de la VM. Además, en lugar de seleccionar la opción ``x86_64``, debemos selecionar ``3`` ya que hacemos uso de la arquitectura ``armv7_hf``.
+
+Sin embargo, la forma en la que preparamos el servicio V2Xcast en el módulo es diferente (por ser un sistema con arquitectura *armv7_hf*).
+
+Preparar el servicio V2Xcast en el módulo
+"""""""""""""""""""""""""""""""""""""""""
+
+Para subir el fichero ``bsm_adhoc.json`` y configurar el servicio (las características de la comunicación V2X) haremos uso de SCP (*Secure Copy Protocol*). Dado que el módulo tiene asignada la dirección ``192.168.1.3``, podemos copiar de forma recursviva toda el contenido bajo ``us_v2xcast_sdk`` en el módulo.
+
+.. code-block:: console
+	
+	$ cd us_v2xcast_sdk/
+	$ scp -r us_v2xcast_sdk root@192.168.1.3:/home/unex
+
+Posteriormente, nos conectaremos al módulo a través de SSH.
+
+.. code-block:: console
+
+	$ ssh root@192.168.1.3
+	$ cd /home/unex/us_v2xcast_sdk
+
+Y ahora, desde el propio modulo, subiremos el fichero ``bsm_adhoc.json`` a través del propio gestor del SDK.
+
+.. code-block:: console
+
+	$ ./v2xcast_manager -m post -f ./cv2x/bsd_adhoc.sjon
+	Uploading US V2Xcast config successful
+
+Recepción
+"""""""""
+
+Continuando el la consola del módulo mediante SSH, para preparar el módulo para la transmisión, tan sólo debemos ejecutar los ficheros ``.c`` compilados previamente para ello.
+
+.. code-block::console
+
+	cd /home/unex/us_v2xcast_sdk/example/v2xcast_bsm
+	./v2xcast_bsm 127.0.0.1 0 0
+
+El resultado, al recebir algun paquete, se espera que sea el siguiente:
+
+.. code-block:: text
+
+	connect to server 127.0.0.1:30002
+	-----------------------
+	Received 54 bytes!
+	BSM decoding data:
+
+	00 14 33 40 18 58 98 D9 09 DC E2 37 51 D8 D9 B7
+	36 FE 08 00 00 00 00 00 00 00 00 00 7E 7D 07 D0
+	7F 7F FF 17 E0 00 00 01 00 1D 64 00 20 F9 D9 02
+	00 10 34 20 88 20
+
+	Decoded BSM
+	  coreData.msgCnt: 1
+	  coreData.id: 61626364
+	  secMark: 10099
+	  transmission: 0
+	  partII[0]:
+	    partII_Id: 0
+	     case VehicleSafetyExt: 3
+	  partII[1]:
+	    partII_Id: 1
+	-----------------------
 
 .. warning::
+	
+	Los módulos deben tener conectadas tres antenas para que se de lugar a la comunicación. En especial, la antena que recoge información de la posición (GNSS), debe tener visión directa con los satelites del sistema. Por tanto, es fundamental que los dispositivos se encuentre en espacios abierto (fuera de la ventana de un edificio, en la calle, etc.).
 
-	Iñigo no toques esto!!
+.. note::
+	
+	Destacar que en esta recepción las llamadas a la API del SDK que realizan los ficheros ``.c`` se ejecutan sobre el módulo y **NO** sobre la Raspeberry Pi. Esto puede llegar a suponer un obstáculo ya que las capacidad del módulo es limidada (se trata de un sistema embebido).
+
+Comunicación personalizada
+--------------------------
