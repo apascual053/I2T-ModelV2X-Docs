@@ -131,7 +131,7 @@ El funcionamiento es el siguiente:
 * Añade información sobre ID del caster
 
   * Un byte inicial al principio de ``data``.
-  * Un símbolo ``%`` al final de ``data``. Para ello, desplazada una posición a la derecha el símbolo de final de ``string`` (``\0``).
+  * Un símbolo ``%`` al final de ``data``. Para ello, desplazada una posición a la derecha el símbolo de final de `string` (`\0`).
 
 * Hace uso de ``us_caster_tx()``
 
