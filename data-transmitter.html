@@ -9,6 +9,7 @@
         <title>Entiendo data_transmitter_main.c - documentación de Maqueta V2X - 0.1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -319,19 +320,15 @@
 </ul>
 <p>El funcionamiento es el siguiente:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Se le solicita un input de tipo <code class="docutils literal notranslate"><span class="pre">string</span></code> y comprueba que no este a <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</dt><dd><ul>
+<li><p>Se le solicita un input de tipo <code class="docutils literal notranslate"><span class="pre">string</span></code> y comprueba que no este a <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
+<ul>
 <li><p>En caso de <code class="docutils literal notranslate"><span class="pre">NULL</span></code>, genera un error y termina la ejecución del programa.</p></li>
 </ul>
-</dd>
-</dl>
 </li>
-<li><dl class="simple">
-<dt>Si el <code class="docutils literal notranslate"><span class="pre">string</span></code> proporcionado contiene el carácter <code class="docutils literal notranslate"><span class="pre">\n</span></code> , se elimina.</dt><dd><ul>
+<li><p>Si el <code class="docutils literal notranslate"><span class="pre">string</span></code> proporcionado contiene el carácter <code class="docutils literal notranslate"><span class="pre">\n</span></code> , se elimina.</p>
+<ul>
 <li><p>En consecuencia, se decrementa su longitud <code class="docutils literal notranslate"><span class="pre">input_length</span></code>.</p></li>
 </ul>
-</dd>
-</dl>
 </li>
 </ul>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">read_user_input</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">input_buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_length</span><span class="p">)</span>
@@ -362,21 +359,17 @@
 <ul class="simple">
 <li><p>Obtiene la longitud de la cadena a transmitir</p></li>
 <li><p>Desplaza todos los caracteres una posición a la derecha</p></li>
-<li><dl class="simple">
-<dt>Añade información sobre ID del caster</dt><dd><ul>
+<li><p>Añade información sobre ID del caster</p>
+<ul>
 <li><p>Un byte inicial al principio de <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p></li>
 <li><p>Un símbolo <code class="docutils literal notranslate"><span class="pre">%</span></code> al final de <code class="docutils literal notranslate"><span class="pre">data</span></code>. Para ello, desplazada una posición a la derecha el símbolo de final de <cite>string</cite> (<cite>0</cite>).</p></li>
 </ul>
-</dd>
-</dl>
 </li>
-<li><dl class="simple">
-<dt>Hace uso de <code class="docutils literal notranslate"><span class="pre">us_caster_tx()</span></code></dt><dd><ul>
+<li><p>Hace uso de <code class="docutils literal notranslate"><span class="pre">us_caster_tx()</span></code></p>
+<ul>
 <li><p>En caso de error, notifica el estado por pantalla y termina la ejecución del programa.</p></li>
 <li><p>En ausencia de error, notifica la transmisión de <code class="docutils literal notranslate"><span class="pre">data</span></code> por pantalla.</p></li>
 </ul>
-</dd>
-</dl>
 </li>
 <li><p>Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información</p></li>
 </ul>
@@ -496,6 +489,8 @@
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/translations.js?v=f85f4cfb"></script>
     </body>
 </html>
