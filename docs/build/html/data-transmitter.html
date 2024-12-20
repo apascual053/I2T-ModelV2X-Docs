@@ -362,7 +362,7 @@
 <li><p>Añade información sobre ID del caster</p>
 <ul>
 <li><p>Un byte inicial al principio de <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p></li>
-<li><p>Un símbolo <code class="docutils literal notranslate"><span class="pre">%</span></code> al final de <code class="docutils literal notranslate"><span class="pre">data</span></code>. Para ello, desplazada una posición a la derecha el símbolo de final de <cite>string</cite> (<cite>0</cite>).</p></li>
+<li><p>Un símbolo <code class="docutils literal notranslate"><span class="pre">%</span></code> al final de <code class="docutils literal notranslate"><span class="pre">data</span></code>. Para ello, desplazada una posición a la derecha el símbolo de final de <code class="docutils literal notranslate"><span class="pre">string</span></code> (<code class="docutils literal notranslate"><span class="pre">\0</span></code>).</p></li>
 </ul>
 </li>
 <li><p>Hace uso de <code class="docutils literal notranslate"><span class="pre">us_caster_tx()</span></code></p>
@@ -412,6 +412,399 @@
 <span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Received signal %d, shutting down...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sig_num</span><span class="p">);</span>
 <span class="w">        </span><span class="n">app_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">APP_STATE_DESTROY</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="configuracion-de-recepcion-de-senales-con-pila-alternativa">
+<h3>Configuración de recepción de señales con pila alternativa<a class="headerlink" href="#configuracion-de-recepcion-de-senales-con-pila-alternativa" title="Link to this heading">¶</a></h3>
+<p>La función <code class="docutils literal notranslate"><span class="pre">app_setup_signals()</span></code> se utiliza para configurar la recepción de señales mediante una pila alternativa y a través de la función <code class="docutils literal notranslate"><span class="pre">app_signal_handler()</span></code>.</p>
+<p>En primer lugar, se declaran las siguientes variables:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stack_t</span> <span class="pre">sigstack</span></code>: Una estructura que se usa para el manejo de pilas (espacio de memoria) en las señales. Normalmente, una pila separada evita conflictos con otras pilas del sistema.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">sigaction</span> <span class="pre">sa</span></code>: Una estructura que define cómo manejar las señales.</p></li>
+<li><p>El valor de retorno en forma de <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">ret</span></code>.</p></li>
+</ul>
+<p>El funcionamiento es el siguiente:</p>
+<ul class="simple">
+<li><p>Reserva de espacio para la pila de memoria alternativa (<code class="docutils literal notranslate"><span class="pre">malloc</span></code>):</p>
+<ul>
+<li><p>En caso de que no se pueda realizar esta tarea, se finaliza la ejecución del programa.</p></li>
+</ul>
+</li>
+<li><p>Configuración de la pila alternativa:</p>
+<ul>
+<li><p>Se indica que la pila tiene tamaño <code class="docutils literal notranslate"><span class="pre">SIGSTKSZ</span></code>, un valor estándar para el manejo de pilas
+alternativas en el contexto de manejo de señales.</p></li>
+<li><p>Como la pila se usará de manera estándar, se añade <code class="docutils literal notranslate"><span class="pre">sigstack.ss_flags</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigaltstack(&amp;sigstack,</span> <span class="pre">NULL)</span></code> indica al sistema que use la pila alternativa
+(<code class="docutils literal notranslate"><span class="pre">sigstack</span></code>) que hemos preparado para manejar las señales.</p>
+<ul>
+<li><p>Si no se puede configurar, se procede a finalizar la ejecución de la función
+y se devolverá el valor que <code class="docutils literal notranslate"><span class="pre">ret</span></code> tenga en ese instante.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Configuración del manejador de señales, para lo cual, lo primero que se ha hecho es definir <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">sigaction</span> <span class="pre">sa</span></code>.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">sa.sa_handler</span></code> especifica cuál es la función que se debe ejecutar cuando
+se recibe una señal. En este caso, la función <code class="docutils literal notranslate"><span class="pre">app_signal_handler</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sa.sa_flags</span> <span class="pre">=</span> <span class="pre">SA_ONSTACK</span></code> indica que la señal se manejará usando una pila alternativa
+previamente configurada con <code class="docutils literal notranslate"><span class="pre">sigaltstack</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigemptyset(&amp;sa.sa_mask)</span></code> configura una máscara de señales, es decir, define qué señales
+deben ser bloqueadas mientras se maneja la señal actual. Aquí, no estamos bloqueando ninguna señal
+(ya que la función <code class="docutils literal notranslate"><span class="pre">sigemptyset()</span></code> vacía la máscara de señales), por lo que todas las señales
+pueden ser procesadas.</p></li>
+</ul>
+</li>
+<li><p>Registro de las señales que se deben manejar:</p>
+<ul>
+<li><p>Se registra la señal <code class="docutils literal notranslate"><span class="pre">SIGINT</span></code> mediante <code class="docutils literal notranslate"><span class="pre">sigaction(SIGINT,</span> <span class="pre">&amp;sa,</span> <span class="pre">NULL)</span></code>.</p></li>
+<li><p>Se registra la señal <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> mediante <code class="docutils literal notranslate"><span class="pre">sigaction(SIGTERM,</span> <span class="pre">&amp;sa,</span> <span class="pre">NULL)</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">app_setup_signals</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">stack_t</span><span class="w"> </span><span class="n">sigstack</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sigaction</span><span class="w"> </span><span class="n">sa</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_sp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">SIGSTKSZ</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_sp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SIGSTKSZ</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sigaltstack</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sigstack</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigaltstack()&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">goto</span><span class="w"> </span><span class="n">END</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">sa</span><span class="p">.</span><span class="n">sa_handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app_signal_handler</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sa</span><span class="p">.</span><span class="n">sa_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SA_ONSTACK</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sigemptyset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa_mask</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sigaction</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigaction()&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">goto</span><span class="w"> </span><span class="n">END</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sigaction</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigaction()&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">goto</span><span class="w"> </span><span class="n">END</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="nl">END</span><span class="p">:</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="desactivacion-y-limpieza-de-recursos-asociados-a-la-recepcion-de-senales-con-pila-alternativa">
+<h3>Desactivación y limpieza de recursos asociados a la recepción de señales con pila alternativa<a class="headerlink" href="#desactivacion-y-limpieza-de-recursos-asociados-a-la-recepcion-de-senales-con-pila-alternativa" title="Link to this heading">¶</a></h3>
+<p>La función <code class="docutils literal notranslate"><span class="pre">app_teardown_signal()</span></code>, al contrario que la anterior, se utiliza para desactivar y liberar la pila alternativa configurada para señales. En ella se limpian los recursos usados por <code class="docutils literal notranslate"><span class="pre">sigaltstack</span></code>.</p>
+<p>El funcionamiento es el siguiente:</p>
+<ul class="simple">
+<li><p>Obtención de la pila alternativa actual:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigaltstack(NULL,</span> <span class="pre">&amp;sigstack)</span></code> obtiene la configuración actual de la pila de señales
+(si está activa o no) y guarda su información en la estructura <code class="docutils literal notranslate"><span class="pre">sigstack</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigstack.ss_sp</span></code> apunta a la memoria reservada para la pila alternativa. Esto se guarda en
+<code class="docutils literal notranslate"><span class="pre">allocated_stack</span></code> para luego liberarla.</p></li>
+</ul>
+</li>
+<li><p>Desactivación de la pila alternativa:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigstack.ss_sp</span> <span class="pre">=</span> <span class="pre">NULL</span></code> quita el puntero de la pila alternativa, dejando claro que ya no se usará.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigstack.ss_flags</span> <span class="pre">=</span> <span class="pre">SS_DISABLE</span></code> indica al sistema que desactive el uso de la pila alternativa
+para manejar señales.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigaltstack(&amp;sigstack,</span> <span class="pre">NULL)</span></code> aplica estos cambios, desactivando oficialmente la pila alternativa.</p></li>
+</ul>
+</li>
+<li><p>Liberación de la memoria reservada:</p>
+<ul>
+<li><p>Libera la memoria previamente reservada para la pila alternativa con <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> en <code class="docutils literal notranslate"><span class="pre">app_setup_signals</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">app_teardown_signal</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">stack_t</span><span class="w"> </span><span class="n">sigstack</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">allocated_stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Get the signal stack pointer so we can free the memory */</span>
+<span class="w">    </span><span class="n">sigaltstack</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sigstack</span><span class="p">);</span>
+<span class="w">    </span><span class="n">allocated_stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_sp</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Tell the kernel to stop using it */</span>
+<span class="w">    </span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_sp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_DISABLE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sigstack</span><span class="p">.</span><span class="n">ss_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SIGSTKSZ</span><span class="p">;</span>
+<span class="w">    </span><span class="n">sigaltstack</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sigstack</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Free old stack */</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">allocated_stack</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="configuracion-del-nombre-y-prioridad-del-hilo">
+<h3>Configuración del nombre y prioridad del hilo<a class="headerlink" href="#configuracion-del-nombre-y-prioridad-del-hilo" title="Link to this heading">¶</a></h3>
+<p>La función <code class="docutils literal notranslate"><span class="pre">pp_set_thread_name_and_priority()</span></code> establece el nombre y la prioridad de un hilo según su tipo (TX o RX).</p>
+<ul class="simple">
+<li><p>Verifica si el nombre del hilo (<code class="docutils literal notranslate"><span class="pre">p_name</span></code>) es <code class="docutils literal notranslate"><span class="pre">NULL</span></code>. Si es así, retorna <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
+<li><p>Obtiene los límites de prioridad para los hilos de transmisión (TX) y recepción (RX).</p></li>
+<li><p>Valida que la prioridad esté dentro de los límites permitidos según el tipo de hilo:</p>
+<ul>
+<li><p>Para hilos de transmisión (<code class="docutils literal notranslate"><span class="pre">APP_THREAD_TX</span></code>), se verifica que la prioridad esté en el rango permitido para TX.</p></li>
+<li><p>Para hilos de recepción (<code class="docutils literal notranslate"><span class="pre">APP_THREAD_RX</span></code>), se verifica que la prioridad esté en el rango permitido para RX.</p></li>
+</ul>
+</li>
+<li><p>Si el tipo de hilo no es reconocido, retorna <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
+<li><p>Establece el nombre del hilo usando <cite>pthread_setname_np()</cite>. Si falla, retorna <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
+<li><p>Si se permite la configuración de prioridades (<code class="docutils literal notranslate"><span class="pre">__SET_PRIORITY__</span></code>), se establece la prioridad del hilo usando <code class="docutils literal notranslate"><span class="pre">pthread_setschedparam()</span></code>. Si falla, retorna <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
+<li><p>Retorna <code class="docutils literal notranslate"><span class="pre">0</span></code> en caso de éxito.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">app_set_thread_name_and_priority</span><span class="p">(</span><span class="n">pthread_t</span><span class="w"> </span><span class="kr">thread</span><span class="p">,</span><span class="w"> </span><span class="n">app_thread_type_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p_name</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">priority</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">caster_thread_info_t</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="cp">#ifdef __SET_PRIORITY__</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SCHED_FIFO</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sched_param</span><span class="w"> </span><span class="n">param</span><span class="p">;</span>
+<span class="cp">#endif  </span><span class="c1">// __SET_PRIORITY__</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* Check thread priority is in the limited range */</span>
+<span class="w">    </span><span class="n">us_caster_thread_info_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">limited_thread_config</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">APP_THREAD_TX</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Check the limited range for tx thread priority */</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">priority</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">tx_thread_priority_low</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">priority</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">tx_thread_priority_high</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="cm">/* Thread priority is out of range */</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The tx thread priority is out of range (%d-%d): %d </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">tx_thread_priority_low</span><span class="p">,</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">tx_thread_priority_high</span><span class="p">,</span><span class="w"> </span><span class="n">priority</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="cp">#ifdef __SET_PRIORITY__</span>
+<span class="w">        </span><span class="n">policy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SCHED_RR</span><span class="p">;</span>
+<span class="cp">#endif  </span><span class="c1">// __SET_PRIORITY__</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">APP_THREAD_RX</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Check the limited range for rx thread priority */</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">priority</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">rx_thread_priority_low</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">priority</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">rx_thread_priority_high</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="cm">/* Thread priority is out of range */</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The rx thread priority is out of range (%d-%d): %d </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">rx_thread_priority_low</span><span class="p">,</span><span class="w"> </span><span class="n">limited_thread_config</span><span class="p">.</span><span class="n">rx_thread_priority_high</span><span class="p">,</span><span class="w"> </span><span class="n">priority</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Target thread type is unknown */</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The thread type is unknown: %d </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pthread_setname_np</span><span class="p">(</span><span class="kr">thread</span><span class="p">,</span><span class="w"> </span><span class="n">p_name</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Can&#39;t set thread name: %d (%s)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">strerror</span><span class="p">(</span><span class="n">result</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="cp">#ifdef __SET_PRIORITY__</span>
+<span class="w">    </span><span class="n">param</span><span class="p">.</span><span class="n">sched_priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">priority</span><span class="p">;</span>
+<span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pthread_setschedparam</span><span class="p">(</span><span class="kr">thread</span><span class="p">,</span><span class="w"> </span><span class="n">policy</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">param</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Can&#39;t set thread priority: %d (%s)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">strerror</span><span class="p">(</span><span class="n">result</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="cp">#endif  </span><span class="c1">// __SET_PRIORITY__</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="funcion-principal">
+<h2>Función principal<a class="headerlink" href="#funcion-principal" title="Link to this heading">¶</a></h2>
+<p>En primer lugar, después de haber declarado alguna variables generales, se desactiva el buffer de <code class="docutils literal notranslate"><span class="pre">stdout</span></code>  de tal forma que se presenta todo en pantalla sin esperar a completar o rellenar dicho buffer.</p>
+<section id="invocar-el-programa">
+<h3>Invocar el programa<a class="headerlink" href="#invocar-el-programa" title="Link to this heading">¶</a></h3>
+<p>En segundo lugar, se verifica la correcta llamada al programa. Esta precisa de tres argumento: el nombre del programa, la dirección IP a la que se enviará la información, y el ID receptor del caster).</p>
+<p>En caso de que esta llamada no se haga correctamente, se procede a la finalización del programa.</p>
+<p>En el caso de haberse realizado correctamente la llamada, se asigna a <code class="docutils literal notranslate"><span class="pre">caster_rx_id</span></code> el tercer parámetro (de índice <code class="docutils literal notranslate"><span class="pre">2</span></code> ) pasado por consola.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Usage:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  ./data_transmitter [IP] [caster_rx_id] </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  For example,</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;    ./data_transmitter 192.168.1.3 1&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">caster_rx_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</pre></div>
+</div>
+</section>
+<section id="configuracion-de-las-senales">
+<h3>Configuración de las señales<a class="headerlink" href="#configuracion-de-las-senales" title="Link to this heading">¶</a></h3>
+<p>En tercer lugar, se configura el sistema para hacer uso de la pila alternativa durante el manejo de señales a través de la función <code class="docutils literal notranslate"><span class="pre">app_setup_signals()</span></code>.</p>
+<p>En caso de no haberse podido realizar correctamente, se procede a presentar el fallo por pantalla y a terminar la ejecución del problema.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app_setup_signals</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to set up signals</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="configuracion-e-inicializacion-del-caster">
+<h3>Configuración e inicialización del caster<a class="headerlink" href="#configuracion-e-inicializacion-del-caster" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">caster_conm_config_t</span></code> es una estructura que define la configuración de la comunicación. Consta de los siguientes miembros públicos:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*ip</span></code> la dirección del modulo (el caster se comunica con el módulo).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uint16_t</span> <span class="pre">caster_id</span></code> un valor que identifica inequivocamente al caster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">caster_comm_mode_e</span> <span class="pre">caster_comm_mode</span></code> un valor de la enumeración que caracteriza el modo de comunicación. Este puede tomar los valores:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASTER_MODE_TX</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASTER_MODE_TX</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASTER_MODE_SPLMNT</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASTER_MODE_POTI</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASTER_MODE_MAX</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>Por otra parte, la función <code class="docutils literal notranslate"><span class="pre">us_caster_init()</span></code> inicia el contexto del caster.</p>
+<p>Tanto la estructura como esta última función están definidas en <code class="docutils literal notranslate"><span class="pre">us_caster_service.h</span></code>.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">caster_comm_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">.</span><span class="n">caster_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">caster_comm_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CASTER_MODE_TX</span><span class="p">};</span>
+
+<span class="n">us_caster_init</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="conexion-con-el-servicio-v2xcast">
+<h3>Conexión con el servicio V2Xcast<a class="headerlink" href="#conexion-con-el-servicio-v2xcast" title="Link to this heading">¶</a></h3>
+<p>Otro de los servicios proporcionado por <code class="docutils literal notranslate"><span class="pre">us_caster_service.h</span></code> es la función <code class="docutils literal notranslate"><span class="pre">us_caster_create()</span></code>. Esta función crea una instancia del caster y levanta los recursos necesarios para su funcionamiento.</p>
+<p>En caso de devolver un código de error, se indicaria que no se es capaz de crear la conexión con el módulo (recordar que el caster se encarga de la comunicación pc-módulo) y termina con la ejecución del programa.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">us_caster_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">caster_handler</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">IS_SUCCESS</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Cannot link to V2Xcast Service, V2Xcast Service create ret: [%d]!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Please confirm network connection by pinging the Unex device then upload a V2Xcast config to create a V2Xcast Service.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&quot;-----------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="lectura-de-datos-del-usuario">
+<h3>Lectura de datos del usuario<a class="headerlink" href="#lectura-de-datos-del-usuario" title="Link to this heading">¶</a></h3>
+<p>Seguidamente, se procede a solicitar el usuario la información (<code class="docutils literal notranslate"><span class="pre">string</span></code>) a transmitir, y se hace todo el procesado. Esto se hace mediante la función <code class="docutils literal notranslate"><span class="pre">read_user_input()</span></code>. En caso de recibir una respuesta negativa, se termina la ejecución del programa.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">input_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_user_input</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input_string</span><span class="p">));</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">input_length</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="transmision-de-los-datos">
+<h3>Transmisión de los datos<a class="headerlink" href="#transmision-de-los-datos" title="Link to this heading">¶</a></h3>
+<p>Una vez se tiene la información a transmitir, se realiza la propia transmisión mediante la función <code class="docutils literal notranslate"><span class="pre">transmit_data()</span></code> previamente introducida. Si se produce algún error en la transmisión (<code class="docutils literal notranslate"><span class="pre">ret</span> <span class="pre">!=0</span></code>), no se termina la ejecución del programa pero se notifica del error por pantalla.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">transmit_data</span><span class="p">(</span><span class="n">input_string</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error transmitting data.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="configuracion-de-los-hilos-de-tranmision">
+<h3>Configuración de los hilos de tranmisión<a class="headerlink" href="#configuracion-de-los-hilos-de-tranmision" title="Link to this heading">¶</a></h3>
+<p>A continuación, a través previamente explicada <code class="docutils literal notranslate"><span class="pre">app_set_thread_name_and_priority()</span></code>, se configuran los hilos de la forma deseada. La función <code class="docutils literal notranslate"><span class="pre">us_caster_thread_info_get()</span></code> obtiene la información necesaria del caster (es una función de la API) y deposita esa información en la variable que se le pasa como parámetro y que está definida al principio de <code class="docutils literal notranslate"><span class="pre">main</span></code>: <code class="docutils literal notranslate"><span class="pre">caster_thread_info</span></code>.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">us_caster_thread_info_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">caster_thread_info</span><span class="p">);</span>
+<span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app_set_thread_name_and_priority</span><span class="p">(</span><span class="n">pthread_self</span><span class="p">(),</span><span class="w"> </span><span class="n">APP_THREAD_TX</span><span class="p">,</span><span class="w"> </span><span class="n">caster_thread_info</span><span class="p">.</span><span class="n">tx_thread_name</span><span class="p">,</span><span class="w"> </span><span class="n">caster_thread_info</span><span class="p">.</span><span class="n">tx_thread_priority_low</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="liberacion-de-recursos">
+<h3>Liberación de recursos<a class="headerlink" href="#liberacion-de-recursos" title="Link to this heading">¶</a></h3>
+<p>Se libera la instancia del caster que habia creado así como las recursos utilizados por dicha instancia. Para ello, se hace uso de la función <code class="docutils literal notranslate"><span class="pre">us_caster_realease()</span></code> de la API del SDK.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">us_caster_release</span><span class="p">(</span><span class="n">caster_handler</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="limpieza-de-senales">
+<h3>Limpieza de señales<a class="headerlink" href="#limpieza-de-senales" title="Link to this heading">¶</a></h3>
+<p>Se desinicializa el contexto iniciado para la creación del caster mediante la función <code class="docutils literal notranslate"><span class="pre">us_caster_deinit()</span></code> de la API del SDK.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">us_caster_deinit</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="finalizacion-de-senales">
+<h3>Finalización de señales<a class="headerlink" href="#finalizacion-de-senales" title="Link to this heading">¶</a></h3>
+<p>Por último, se desactiva y limpian los recursos usando por la pila alternativa para el manejo de señales. En el caso de que todo se haya ejecutado correctamente, se proporcional la salida correspondiente <code class="docutils literal notranslate"><span class="pre">EXIT_SUCESS</span></code>.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">app_teardown_signal</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>A continuación, se muestra la función <code class="docutils literal notranslate"><span class="pre">main</span></code> completa.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">caster_thread_info_t</span><span class="w"> </span><span class="n">caster_thread_info</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">setbuf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Usage:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  ./data_transmitter [IP] [caster_rx_id] </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  For example,</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;    ./data_transmitter 192.168.1.3 1&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">caster_rx_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app_setup_signals</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Failed to set up signals</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">caster_comm_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">.</span><span class="n">caster_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">caster_comm_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CASTER_MODE_TX</span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">us_caster_init</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/* init v2xcast */</span>
+<span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">us_caster_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">caster_handler</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">IS_SUCCESS</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Cannot link to V2Xcast Service, V2Xcast Service create ret: [%d]!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Please confirm network connection by pinging the Unex device then upload a V2Xcast config to create a V2Xcast Service.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;-----------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* thread of data transmitter */</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">input_string</span><span class="p">[</span><span class="n">MAX_BUFFER_SIZE</span><span class="p">];</span><span class="w"> </span><span class="c1">// Buffer to hold user input</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">input_length</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">input_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_user_input</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input_string</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">input_length</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">transmit_data</span><span class="p">(</span><span class="n">input_string</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error transmitting data.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/* If the example is run in Unex device, please use the below functions to set tx and rx message threads name and priority */</span>
+<span class="w">    </span><span class="cm">/* If the example is run on other platforms, it is optional to set tx and rx message threads name and priority */</span>
+<span class="w">    </span><span class="n">us_caster_thread_info_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">caster_thread_info</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app_set_thread_name_and_priority</span><span class="p">(</span><span class="n">pthread_self</span><span class="p">(),</span><span class="w"> </span><span class="n">APP_THREAD_TX</span><span class="p">,</span><span class="w"> </span><span class="n">caster_thread_info</span><span class="p">.</span><span class="n">tx_thread_name</span><span class="p">,</span><span class="w"> </span><span class="n">caster_thread_info</span><span class="p">.</span><span class="n">tx_thread_priority_low</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">us_caster_release</span><span class="p">(</span><span class="n">caster_handler</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">us_caster_deinit</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">app_teardown_signal</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -472,6 +865,22 @@
 <li><a class="reference internal" href="#leer-input-del-usuario">Leer input del usuario</a></li>
 <li><a class="reference internal" href="#transmision-de-la-informacion">Transmisión de la información</a></li>
 <li><a class="reference internal" href="#funcion-de-recepcion-de-senales">Función de recepción de señales</a></li>
+<li><a class="reference internal" href="#configuracion-de-recepcion-de-senales-con-pila-alternativa">Configuración de recepción de señales con pila alternativa</a></li>
+<li><a class="reference internal" href="#desactivacion-y-limpieza-de-recursos-asociados-a-la-recepcion-de-senales-con-pila-alternativa">Desactivación y limpieza de recursos asociados a la recepción de señales con pila alternativa</a></li>
+<li><a class="reference internal" href="#configuracion-del-nombre-y-prioridad-del-hilo">Configuración del nombre y prioridad del hilo</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#funcion-principal">Función principal</a><ul>
+<li><a class="reference internal" href="#invocar-el-programa">Invocar el programa</a></li>
+<li><a class="reference internal" href="#configuracion-de-las-senales">Configuración de las señales</a></li>
+<li><a class="reference internal" href="#configuracion-e-inicializacion-del-caster">Configuración e inicialización del caster</a></li>
+<li><a class="reference internal" href="#conexion-con-el-servicio-v2xcast">Conexión con el servicio V2Xcast</a></li>
+<li><a class="reference internal" href="#lectura-de-datos-del-usuario">Lectura de datos del usuario</a></li>
+<li><a class="reference internal" href="#transmision-de-los-datos">Transmisión de los datos</a></li>
+<li><a class="reference internal" href="#configuracion-de-los-hilos-de-tranmision">Configuración de los hilos de tranmisión</a></li>
+<li><a class="reference internal" href="#liberacion-de-recursos">Liberación de recursos</a></li>
+<li><a class="reference internal" href="#limpieza-de-senales">Limpieza de señales</a></li>
+<li><a class="reference internal" href="#finalizacion-de-senales">Finalización de señales</a></li>
 </ul>
 </li>
 </ul>
