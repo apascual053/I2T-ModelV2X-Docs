@@ -119,19 +119,19 @@ Transmisión de la información
 
 La función ``transmit_data()`` es la que función que, haciendo uso de la API del SDK de los módulos Unex, envía la información. Concretamente, hace uso de la función ``us_caster_tx()`` para transmitir la información.
 
-Recibe como parámetros un punto a ``data``.
+Recibe como parámetros un puntero a ``data``.
 
 El funcionamiento es el siguiente:
 
-- Obtiene la longitud de la cadena a transmitir.
-- Desplaza todos los caracteres una posición a la derecha.
-- Añade información sobre ID del caster.
-    - Un byte inicial al principio de la ``data``.
+- Obtiene la longitud de la cadena a transmitir
+- Desplaza todos los caracteres una posición a la derecha
+- Añade información sobre ID del caster
+    - Un byte inicial al principio de ``data``.
     - Un símbolo ``%`` al final de ``data``. Para ello, desplazada una posición a la derecha el símbolo de final de `string` (`\0`).
-- Hace uso de ``us_caster_tx()``.
+- Hace uso de ``us_caster_tx()``
     - En caso de error, notifica el estado por pantalla y termina la ejecución del programa.
     - En ausencia de error, notifica la transmisión de ``data`` por pantalla.
-- Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información.
+- Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información
 
 Si todo se ha ejecutado correctamente, se vuelve un ``0``.
 
