@@ -84,15 +84,18 @@ Leer input del usuario
 
 La función ``read_user_input()`` recibe como parámetros:
 
-- Un puntero ``char`` que apunta al comienzo del buffer con el contenido proporcionado.
-- Longitud máxima.
+* Un puntero ``char`` que apunta al comienzo del buffer con el contenido proporcionado.
+* Longitud máxima.
 
 El funcionamiento es el siguiente:
 
-- Se le solicita un input de tipo ``string`` y comprueba que no este a ``NULL``.
-    - En caso de ``NULL``, genera un error y termina la ejecución del programa.
-- Si el ``string`` proporcionado contiene el carácter ``\n`` , se elimina.
-    - En consecuencia, se decrementa su longitud ``input_length``.
+* Se le solicita un input de tipo ``string`` y comprueba que no este a ``NULL``.
+
+  * En caso de ``NULL``, genera un error y termina la ejecución del programa.
+
+* Si el ``string`` proporcionado contiene el carácter ``\n`` , se elimina.
+
+  * En consecuencia, se decrementa su longitud ``input_length``.
 
 .. code:: c
 
@@ -123,15 +126,19 @@ Recibe como parámetros un puntero a ``data``.
 
 El funcionamiento es el siguiente:
 
-- Obtiene la longitud de la cadena a transmitir
-- Desplaza todos los caracteres una posición a la derecha
-- Añade información sobre ID del caster
-    - Un byte inicial al principio de ``data``.
-    - Un símbolo ``%`` al final de ``data``. Para ello, desplazada una posición a la derecha el símbolo de final de `string` (`\0`).
-- Hace uso de ``us_caster_tx()``
-    - En caso de error, notifica el estado por pantalla y termina la ejecución del programa.
-    - En ausencia de error, notifica la transmisión de ``data`` por pantalla.
-- Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información
+* Obtiene la longitud de la cadena a transmitir
+* Desplaza todos los caracteres una posición a la derecha
+* Añade información sobre ID del caster
+
+  * Un byte inicial al principio de ``data``.
+  * Un símbolo ``%`` al final de ``data``. Para ello, desplazada una posición a la derecha el símbolo de final de `string` (`\0`).
+
+* Hace uso de ``us_caster_tx()``
+
+  * En caso de error, notifica el estado por pantalla y termina la ejecución del programa.
+  * En ausencia de error, notifica la transmisión de ``data`` por pantalla.
+
+* Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información
 
 Si todo se ha ejecutado correctamente, se vuelve un ``0``.
 
