@@ -357,28 +357,28 @@
 <section id="transmision-de-la-informacion">
 <h3>Transmisión de la información<a class="headerlink" href="#transmision-de-la-informacion" title="Link to this heading">¶</a></h3>
 <p>La función <code class="docutils literal notranslate"><span class="pre">transmit_data()</span></code> es la que función que, haciendo uso de la API del SDK de los módulos Unex, envía la información. Concretamente, hace uso de la función <code class="docutils literal notranslate"><span class="pre">us_caster_tx()</span></code> para transmitir la información.</p>
-<p>Recibe como parámetros un punto a <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+<p>Recibe como parámetros un puntero a <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
 <p>El funcionamiento es el siguiente:</p>
 <ul class="simple">
-<li><p>Obtiene la longitud de la cadena a transmitir.</p></li>
-<li><p>Desplaza todos los caracteres una posición a la derecha.</p></li>
+<li><p>Obtiene la longitud de la cadena a transmitir</p></li>
+<li><p>Desplaza todos los caracteres una posición a la derecha</p></li>
 <li><dl class="simple">
-<dt>Añade información sobre ID del caster.</dt><dd><ul>
-<li><p>Un byte inicial al principio de la <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p></li>
+<dt>Añade información sobre ID del caster</dt><dd><ul>
+<li><p>Un byte inicial al principio de <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p></li>
 <li><p>Un símbolo <code class="docutils literal notranslate"><span class="pre">%</span></code> al final de <code class="docutils literal notranslate"><span class="pre">data</span></code>. Para ello, desplazada una posición a la derecha el símbolo de final de <cite>string</cite> (<cite>0</cite>).</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Hace uso de <code class="docutils literal notranslate"><span class="pre">us_caster_tx()</span></code>.</dt><dd><ul>
+<dt>Hace uso de <code class="docutils literal notranslate"><span class="pre">us_caster_tx()</span></code></dt><dd><ul>
 <li><p>En caso de error, notifica el estado por pantalla y termina la ejecución del programa.</p></li>
 <li><p>En ausencia de error, notifica la transmisión de <code class="docutils literal notranslate"><span class="pre">data</span></code> por pantalla.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><p>Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información.</p></li>
+<li><p>Por último, bloquea la ejecución del programa durante 100 ms, para dar tiempo al receptor a procesar la información</p></li>
 </ul>
 <p>Si todo se ha ejecutado correctamente, se vuelve un <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">transmit_data</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
