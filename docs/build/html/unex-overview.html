@@ -253,13 +253,116 @@
 <h1>Descripción general<a class="headerlink" href="#descripcion-general" title="Link to this heading">¶</a></h1>
 <p>Una de los puntos fuertes de estos módulos Unex es la incorporación del kit <strong>V2Xcast SDK</strong>. Mientras que la mecánica habitual con este tipo de implementaciones es que los desarrolladores estudien los estándares y pilas de protocolos relacionados (como las normas IEEE 1609.3 y 1609.4), así como las restricciones necesarias para los niveles inferiores, y, a partir de esa información, integren la API en sus proyectos de forma que el sistema funcione correctamente, V2Xcast ofrece una alternativa de trabajo.</p>
 <p>Mediante <strong>V2Xcast</strong> se puede configuar las pilas de protocolos a utilizar, invocar la API para crear/liberar <em>Casters</em> y utilizar estos <em>Casters</em> para enviar/recibir mensajes. El funcionamiento se puede ver en la siguiente figura.</p>
-<p>FALTA LA FIGURA.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/system_architecture_external_use.svg"><img alt="Descripción de la imagen" src="_images/system_architecture_external_use.svg" style="width: 50%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Arquitectura del sistema desde el punto de vista externo</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>De niveles superiores a inferiores, los aplicaciones que requiren comunicaciones V2X pueden hacer uso del kit de desarrollo <strong>V2Xcast SDK</strong>. Dicho kit realiza llamadas a los <strong>Servicios V2Xcast</strong>. Como existen diferentes normativas en función de la región en la que se desea desplegar el proyecto, estas llamadas harán uso bien de los servicios US (United States) o bien de los servicios EU (European Union).</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
 <p>En este proyecto, como se quieren explorar los estándares IEEE, se hará uso de los <em>US Services</em>.</p>
 </div>
 <p>En cualquier caso, estos servicios integran funcionalidades tanto de manejo de mensajes, como de seguridad, codificación, red, transporte, etc. Los servicios se apoyan en el PAL (<em>Platform Abstraction Layer</em>) que se encarga de proporcionar una <strong>interfaz uniforme</strong> entre los <strong>servicios</strong> y el de <strong>hardware</strong> subyacentes. En este caso, PAL gestiona la interacción entre los servicios de V2Xcast y componentes del sistema como: V2X, C-V2X, Criptografía (Seguridad), HSM (Hardware Security Module, para almacenamiento y procesamiento de claves seguras) o GNSS (para información de posicionamiento).</p>
+<p>El paquete de US trae consigo un <strong>conjunto de ficheros</strong>, entre los que se encuentra el SDK y la documentación oficial. En concreto, trae:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">${PRODUCT_NAME}-remote_upgrade-${SDK_VERSION}.sh</span></code></dt><dd><ul class="simple">
+<li><p>Un <strong>script</strong> para <strong>actualizar</strong> la pila de protocolos US de forma remota.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">us_protocol_${dsrc/cv2x}-craton2-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
+<li><p><strong>US SDK</strong> para la plataforma <strong>Cranton2</strong>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-armv7a_32_linux-${SDK_VERSION}.tgz</span></code></dt><dd><p>-<strong>US V2Xcast</strong> para las plataformas <strong>ARMv7a</strong>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-armv8a_64_linux-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
+<li><p><strong>US V2xcast</strong> para las plataformas <strong>ARMv8a</strong>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-x86_64_linux-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
+<li><p><strong>US V2Xcast</strong> para las plataformas <strong>X86-64</strong>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">poky-${TOOLCHAIN_TYPE}-toolchain-${TOOLCHAIN_VERSION}.sh</span></code></dt><dd><ul class="simple">
+<li><p>Un <strong>script</strong> para <strong>instalar y configurar</strong> el <em>toolchain</em> de desarrollo necesario para compilar aplicaciones en plataformas específicas. El <em>toolchain</em> es un conjunto de herramientas que incluyen compiladores y otros recursos.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Los tipos <code class="docutils literal notranslate"><span class="pre">armv7a</span></code>, <code class="docutils literal notranslate"><span class="pre">armv8a</span></code> y <code class="docutils literal notranslate"><span class="pre">`x86-64</span></code> hacen referencia los tres tipo de arquitecturas más comunes en equipos de usuario (PCs, por ejemplo). En equipos GNU/Linux, ejecutando el comando <code class="docutils literal notranslate"><span class="pre">uname</span> <span class="pre">-u</span></code> podemos saber cual es la arquitectura del equipo. A lo largo del proyecto es importante saber donde se compilan y ejecutan los distintos programas y asegurarse de que estan orientados al tipo de arquitectura deseado.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Prudencia</p>
+<p>En lo que respecta a la instalación física de los módulos, existe una guía de instalación dentro del paquete. A modo de resumen, los modulos se montan sobre una adaptador a interfaz USB-A que se conecta directamente a cualquier equipo. Los módulos poseen tres puntos para la <strong>colocación de antenas</strong>, dos elevados superiormente para poner antenas de <strong>recepción y transmisión de mensajes</strong> generales y otra para el <strong>servicio GNSS de posicionamiento</strong>. Esta última debe colocarse fuera de cualquier <strong>recinto cerrado</strong> (fuera de cualquier edificio).</p>
+</div>
+<p>Por último, es importante mencionar que Unex implementa funciones V2X basadas en la capa de protocolo internacionales y versiones de estándares relacionados. En el caso de los servicios US, implementa los siguientes protocolos y estándares.</p>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Protocol Layer</p></th>
+<th class="head"><p>Standard name</p></th>
+<th class="head"><p>Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Message Layer</p></td>
+<td><p>SAE J2735 V2X Communications Message Set Dictionary</p></td>
+<td><p>202007</p></td>
+</tr>
+<tr class="row-odd"><td><p>Network &amp; Transport Layer</p></td>
+<td><p>IEEE Std 1609.3</p></td>
+<td><p>2020 (partial)</p></td>
+</tr>
+<tr class="row-even"><td><p>Access Layer</p></td>
+<td><p>IEEE Std 1609.4</p></td>
+<td><p>2016</p></td>
+</tr>
+<tr class="row-odd"><td><p>Security Layer</p></td>
+<td><p>IEEE Std 1609.2</p></td>
+<td><p>2016</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>IEEE Std 1609.2a</p></td>
+<td><p>2017</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>IEEE Std 1609.2b</p></td>
+<td><p>2019</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>IEEE Std 1609.2.1</p></td>
+<td><p>2022</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <section id="arquitectura">
 <h2>Arquitectura<a class="headerlink" href="#arquitectura" title="Link to this heading">¶</a></h2>
 </section>
