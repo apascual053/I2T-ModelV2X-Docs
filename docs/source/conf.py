@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Maqueta V2X'
-copyright = '2024, Aitor Pascual'
+copyright = '2025, Aitor Pascual'
 author = 'Aitor Pascual'
 release = '0.1'
 
