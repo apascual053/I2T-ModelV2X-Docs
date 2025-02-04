@@ -1,13 +1,13 @@
 Descripción general
 ===================
 
-El **Unex SOM-352** es un módulo de comunicación V2X que integra el chipset **CRATON2**. Este módulo está diseñado para facilitar la implementación de funciones V2X en vehículos y aplicaciones de transporte inteligente. Al incorporar el CRATON2, el SOM-352 ofrece compatibilidad con las tecnologías **DSRC** y **C-V2X**, permitiendo la comunicación directa entre vehículos y entre vehículos e infraestructuras.
+El **Unex SOM-352** es un módulo de comunicación V2X que integra el chipset **Craton2**. Este módulo está diseñado para facilitar la implementación de funciones V2X en vehículos y aplicaciones de transporte inteligente. Al incorporar el Craton2, el SOM-352 ofrece compatibilidad con las tecnologías **DSRC** y **C-V2X**, permitiendo la comunicación directa entre vehículos y entre vehículos e infraestructuras.
 
-El punto fuerte de estos módulos Unex es la incorporación del kit **V2Xcast SDK**. Mientras que la mecánica habitual con este tipo de implementaciones es que los desarrolladores estudien los estándares y pilas de protocolos relacionados (como las normas IEEE 1609.3 y 1609.4), así como las restricciones necesarias para los niveles inferiores, y, a partir de esa información, integren programas en sus proyectos de forma que el sistema funcione correctamente, V2Xcast ofrece una alternativa de trabajo.
+El punto fuerte de estos módulos Unex es la incorporación del kit **V2Xcast SDK**. V2Xcast SDK permite interactuar con el módulo Unex V2X sin necesidad de desarrollar directamente sobre él. En lugar de desarrollar programas que implementen las pilas de protocolos y estándares V2X desde cero, permite utilizar una API (**V2Xcast Services**) que abstrae estos detalles y facilita la integración en sus aplicaciones. Esto permite trabajar a un nivel más alto, sin necesidad de gestionar directamente las capas inferiores de comunicación.
 
 Mediante **V2Xcast** se pueden configurar las pilas de protocolos a utilizar, invocar la API correspondiente para crear/liberar *Casters* y utilizar estos *Casters* para enviar/recibir mensajes de forma sencilla.
 
-.. admonition:: Dicho de otra forma
+.. admonition:: Dos formas de usar los módules Unex 352
 
   Se pueden desarrollar programas orientados directamente a trabajar con el chipset **Craton2**, para lo cual habrá que compilar los programas con un compilador específico. O, tambień, se pueden desarrollar programas para otras arquitecturas más frecuentes como ``x86-64`` (Ubuntu, por ejemplo) o ``armv7a`` (Raspberry Pi OS, por ejemplo). Estas últimas deberán interacturar con el módulo a través del servicio V2Xcast.
 
