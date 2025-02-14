@@ -1,6 +1,9 @@
 Descripción general
 ===================
 
+Introducción
+------------
+
 El **Unex SOM-352** es un módulo de comunicación V2X que integra el chipset **Craton2**. Este módulo está diseñado para facilitar la implementación de funciones V2X en vehículos y aplicaciones de transporte inteligente. Al incorporar el Craton2, el SOM-352 ofrece compatibilidad con las tecnologías **DSRC** y **C-V2X**, permitiendo la comunicación directa entre vehículos y entre vehículos e infraestructuras.
 
 El punto fuerte de estos módulos Unex es la incorporación del kit **V2Xcast SDK**. V2Xcast SDK permite interactuar con el módulo Unex V2X sin necesidad de desarrollar directamente sobre él. En lugar de desarrollar programas que implementen las pilas de protocolos y estándares V2X desde cero, permite utilizar una API (**V2Xcast Services**) que abstrae estos detalles y facilita la integración en sus aplicaciones. Esto permite trabajar a un nivel más alto, sin necesidad de gestionar directamente las capas inferiores de comunicación.
@@ -10,6 +13,9 @@ Mediante **V2Xcast** se pueden configurar las pilas de protocolos a utilizar, in
 .. admonition:: Dos formas de usar los módules Unex 352
 
   Se pueden desarrollar programas orientados directamente a trabajar con el chipset **Craton2**, para lo cual habrá que compilar los programas con un compilador específico. O, tambień, se pueden desarrollar programas para otras arquitecturas más frecuentes como ``x86-64`` (Ubuntu, por ejemplo) o ``armv7a`` (Raspberry Pi OS, por ejemplo). Estas últimas deberán interacturar con el módulo a través del servicio V2Xcast.
+
+Funcionamiento de **V2Xcast Services API**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 El funcionamiento de **V2Xcast Service** se puede ver en la siguiente figura.
 
@@ -24,47 +30,70 @@ De niveles superiores a inferiores, las aplicaciones que requiren comunicaciones
 
 .. note::
 	
-	En este proyecto, como se quieren explorar los estándares IEEE, se hará uso de los *US Services*. Más adelante se muestran las diferencias en los estándares implementados.
+	En este proyecto, como se quieren explorar los estándares IEEE, se hará uso de los *US Services*. Más adelante se muestran estándares implementados por los servicios US.
 
-En cualquier caso, estos servicios integran funcionalidades tanto de manejo de mensajes, como de seguridad, codificación, red, transporte, etc. Los servicios se apoyan en el PAL (*Platform Abstraction Layer*) que se encarga de proporcionar una **interfaz uniforme** entre los **servicios** y el de **hardware** subyacentes. En este caso, PAL gestiona la interacción entre los servicios de V2Xcast y componentes del sistema como: V2X, C-V2X, Criptografía (Seguridad), HSM (Hardware Security Module, para almacenamiento y procesamiento de claves seguras) o GNSS (para información de posicionamiento).
+En cualquier caso, estos servicios integran funcionalidades tanto de manejo de mensajes, como de seguridad, codificación, red, transporte, etc. Estos servicios se apoyan en el PAL (*Platform Abstraction Layer*) que se encarga de proporcionar una **interfaz uniforme** entre los **servicios** y el de **hardware** subyacentes. En este caso, PAL gestiona la interacción entre los servicios de V2Xcast y componentes del sistema como: V2X, C-V2X, Criptografía (Seguridad), HSM (Hardware Security Module, para almacenamiento y procesamiento de claves seguras) o GNSS (para información de posicionamiento).
 
-El paquete de US trae consigo un **conjunto de ficheros**, entre los que se encuentra el SDK y la documentación oficial. 
+
+Entorno de Desarrollo del Sistema
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+El paquete de software US incluye un conjunto de **archivos** esenciales para el desarrollo y la integración del sistema. Entre estos se encuentran el **SDK**, la **documentación oficial** y **herramientas de compilación**.
+
+El paquete contiene la siguiente estructura de directorios:
 
 .. code-block:: text
 
     v200/v2x-files/
-    ├── BSP
-    ├── DOC
-    ├── LTS
-    └── SDK
+    ├── BSP   # Archivos relacionado con el soporta hardware
+    ├── DOC   # Documentación oficial y guías de instalación
+    ├── LTS   # Versiones de soporte extendido (a largo plazo)
+    └── SDK   # Kit de desarrollo de software (Software Develepment Kit)
     4 directories, 0 files
 
-.. note::
+Documentación
+"""""""""""""
 
-  En la carpeta de documentación (DOC) podemos encontrar la documentación de instalación en formato PDF y la documentación oficial en formato ``html``.
+La **documentación** se encuentra en la carpeta ``DOC``, que contiene los siguiente recursos:
 
-En concreto, el SDK trae:
+- Guía de instalación en formato PDF.
+- Documentación oficial en formato ``HTML``.
 
-1. ``${PRODUCT_NAME}-remote_upgrade-${SDK_VERSION}.sh``
-	- Un **script** para **actualizar** la pila de protocolos US de forma remota.
-2. ``us_protocol_${dsrc/cv2x}-craton2-${SDK_VERSION}.tgz``
-	- **US SDK** para la plataforma **Craton2**.
-3. ``us_v2xcast_sdk-armv7a_32_linux-${SDK_VERSION}.tgz``
-	- **US V2Xcast** para las plataformas **ARMv7a**.
-4. ``us_v2xcast_sdk-armv8a_64_linux-${SDK_VERSION}.tgz``
-	- **US V2xcast** para las plataformas **ARMv8a**.
-5. ``us_v2xcast_sdk-x86_64_linux-${SDK_VERSION}.tgz``
-	- **US V2Xcast** para las plataformas **X86-64**.
-6. ``poky-${TOOLCHAIN_TYPE}-toolchain-${TOOLCHAIN_VERSION}.sh``
-	- Un **script** para **instalar y configurar** el *toolchain* de desarrollo necesario para compilar aplicaciones en plataformas específicas. El *toolchain* es un conjunto de herramientas que incluyen compiladores cruzados y otros recursos.
+Por otro lado, el **SDK**, en la carpeta ``SDK``, proporciona los archivos y herramientas que se describen a continuación.
+
+Scripts de instalación y actualización
+""""""""""""""""""""""""""""""""""""""
+
+- ``352UC-remote_upgrade-v2.0.1.tar.gz`` → script para la actualización remota de los protocolos US.
+
+- ``poky-craton2-glibc-x86_64-unex-image-full-rootfs-cortexa7t2hf-neon-atk42xx-vtx352-nand-toolchain-4.0.16.sh`` → script de instalación y configuración del *toolchain* de desarrollo necesario para compilar aplicaciones en plataformas específicas. Incluye compiladores cruzados y herramientas adicionales para facilitar la compilación en arquitecturas diferentes.
 
 .. note::
 
-	Los tipos ``armv7a``, ``armv8a`` y ``x86-64`` hacen referencia los tres tipo de arquitecturas más comunes en equipos de usuario (PCs, por ejemplo). En equipos GNU/Linux, ejecutando el comando ``uname -u`` podemos saber cual es la arquitectura del equipo. A lo largo del proyecto es importante saber donde se compilan y ejecutan los distintos programas y asegurarse de que estan orientados al tipo de arquitectura deseado.
+  Este último script de instalación --- que contiene un compilador cruzado --- se utilizará cuando se quieran compilar programas para ser ejecutados sobre el chip Craton2, siendo estos desarrollados en arquitectura ``armv7a``, ``armv8a`` o ``x86-64``.
 
-.. caution::
+Componentes del SDK
+"""""""""""""""""""
 
-	En lo que respecta a la instalación física de los módulos, existe una guía de instalación dentro del paquete. A modo de resumen, los modulos se montan sobre una adaptador a interfaz USB-A que se conecta directamente a cualquier equipo. Los módulos poseen tres puntos para la **colocación de antenas**, dos elevados superiormente para poner antenas de **recepción y transmisión de mensajes** generales y otra para el **servicio GNSS de posicionamiento**. Esta última debe colocarse fuera de cualquier **recinto cerrado** (fuera de cualquier edificio).
+Contiene el conjunto de ficheros y herramientas necesarias para desarrollar programas que se ejecuten directamente sobre el chip Craton2, sin utilizar V2Xcast.
+
+- ``us_protocol_cv2x-craton2-v2.0.1.tgz`` → contiene el SDK de US para la plataforma *Craton2*.
+
+Paquetes V2Xcast
+""""""""""""""""
+
+Contienen los ficheros y herramientas necesarias para desarrollar programas haciendo uso de la API que proporciona V2Xcast Service.
+
+- ``us_v2xcast_sdk-armv7a_32_linux-v2.0.1.tgz`` → V2Xcast para plataformas *ARMv7a*.
+- ``us_v2xcast_sdk-armv8a_64_linux-v2.0.1.tgz`` → V2Xcast para plataformas *ARMv8a*.
+- ``us_v2xcast_sdk-x86_64_linux-v2.0.1.tgz`` → V2Xcast para plataformas *x86-64*.
+
+.. note::
+
+   Para identificar la arquitectura de un equipo GNU/Linux, se puede utilizar el siguiente comando: ``uname -m``. A lo largo del proyecto es importante saber donde se compilan y ejecutan los distintos programas y asegurarse de que estan orientados al tipo de arquitectura deseado.
+
+Protocolos y estándares del US SDK
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Por último, es importante mencionar que Unex implementa funciones V2X basadas en la capa de protocolo internacionales y versiones de estándares relacionados. En el caso de los servicios US, implementa los siguientes protocolos y estándares.
 
