@@ -252,6 +252,8 @@
         <article role="main" id="furo-main-content">
           <section id="descripcion-general">
 <h1>Descripción general<a class="headerlink" href="#descripcion-general" title="Link to this heading">¶</a></h1>
+<section id="introduccion">
+<h2>Introducción<a class="headerlink" href="#introduccion" title="Link to this heading">¶</a></h2>
 <p>El <strong>Unex SOM-352</strong> es un módulo de comunicación V2X que integra el chipset <strong>Craton2</strong>. Este módulo está diseñado para facilitar la implementación de funciones V2X en vehículos y aplicaciones de transporte inteligente. Al incorporar el Craton2, el SOM-352 ofrece compatibilidad con las tecnologías <strong>DSRC</strong> y <strong>C-V2X</strong>, permitiendo la comunicación directa entre vehículos y entre vehículos e infraestructuras.</p>
 <p>El punto fuerte de estos módulos Unex es la incorporación del kit <strong>V2Xcast SDK</strong>. V2Xcast SDK permite interactuar con el módulo Unex V2X sin necesidad de desarrollar directamente sobre él. En lugar de desarrollar programas que implementen las pilas de protocolos y estándares V2X desde cero, permite utilizar una API (<strong>V2Xcast Services</strong>) que abstrae estos detalles y facilita la integración en sus aplicaciones. Esto permite trabajar a un nivel más alto, sin necesidad de gestionar directamente las capas inferiores de comunicación.</p>
 <p>Mediante <strong>V2Xcast</strong> se pueden configurar las pilas de protocolos a utilizar, invocar la API correspondiente para crear/liberar <em>Casters</em> y utilizar estos <em>Casters</em> para enviar/recibir mensajes de forma sencilla.</p>
@@ -259,6 +261,8 @@
 <p class="admonition-title">Dos formas de usar los módules Unex 352</p>
 <p>Se pueden desarrollar programas orientados directamente a trabajar con el chipset <strong>Craton2</strong>, para lo cual habrá que compilar los programas con un compilador específico. O, tambień, se pueden desarrollar programas para otras arquitecturas más frecuentes como <code class="docutils literal notranslate"><span class="pre">x86-64</span></code> (Ubuntu, por ejemplo) o <code class="docutils literal notranslate"><span class="pre">armv7a</span></code> (Raspberry Pi OS, por ejemplo). Estas últimas deberán interacturar con el módulo a través del servicio V2Xcast.</p>
 </div>
+<section id="funcionamiento-de-v2xcast-services-api">
+<h3>Funcionamiento de <strong>V2Xcast Services API</strong><a class="headerlink" href="#funcionamiento-de-v2xcast-services-api" title="Link to this heading">¶</a></h3>
 <p>El funcionamiento de <strong>V2Xcast Service</strong> se puede ver en la siguiente figura.</p>
 <figure class="align-center" id="id1">
 <a class="reference internal image-reference" href="_images/system_architecture_external_use.svg"><img alt="Descripción de la imagen" src="_images/system_architecture_external_use.svg" style="width: 50%;" />
@@ -270,75 +274,65 @@
 <p>De niveles superiores a inferiores, las aplicaciones que requiren comunicaciones V2X pueden hacer uso del kit de desarrollo <strong>V2Xcast SDK</strong>. Dicho kit realiza llamadas a los <strong>Servicios V2Xcast</strong>. Como existen diferentes normativas en función de la región en la que se desea desplegar el proyecto, estas llamadas harán uso bien de los servicios US (United States) o bien de los servicios EU (European Union).</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>En este proyecto, como se quieren explorar los estándares IEEE, se hará uso de los <em>US Services</em>. Más adelante se muestran las diferencias en los estándares implementados.</p>
+<p>En este proyecto, como se quieren explorar los estándares IEEE, se hará uso de los <em>US Services</em>. Más adelante se muestran estándares implementados por los servicios US.</p>
 </div>
-<p>En cualquier caso, estos servicios integran funcionalidades tanto de manejo de mensajes, como de seguridad, codificación, red, transporte, etc. Los servicios se apoyan en el PAL (<em>Platform Abstraction Layer</em>) que se encarga de proporcionar una <strong>interfaz uniforme</strong> entre los <strong>servicios</strong> y el de <strong>hardware</strong> subyacentes. En este caso, PAL gestiona la interacción entre los servicios de V2Xcast y componentes del sistema como: V2X, C-V2X, Criptografía (Seguridad), HSM (Hardware Security Module, para almacenamiento y procesamiento de claves seguras) o GNSS (para información de posicionamiento).</p>
-<p>El paquete de US trae consigo un <strong>conjunto de ficheros</strong>, entre los que se encuentra el SDK y la documentación oficial.</p>
+<p>En cualquier caso, estos servicios integran funcionalidades tanto de manejo de mensajes, como de seguridad, codificación, red, transporte, etc. Estos servicios se apoyan en el PAL (<em>Platform Abstraction Layer</em>) que se encarga de proporcionar una <strong>interfaz uniforme</strong> entre los <strong>servicios</strong> y el de <strong>hardware</strong> subyacentes. En este caso, PAL gestiona la interacción entre los servicios de V2Xcast y componentes del sistema como: V2X, C-V2X, Criptografía (Seguridad), HSM (Hardware Security Module, para almacenamiento y procesamiento de claves seguras) o GNSS (para información de posicionamiento).</p>
+</section>
+<section id="entorno-de-desarrollo-del-sistema">
+<h3>Entorno de Desarrollo del Sistema<a class="headerlink" href="#entorno-de-desarrollo-del-sistema" title="Link to this heading">¶</a></h3>
+<p>El paquete de software US incluye un conjunto de <strong>archivos</strong> esenciales para el desarrollo y la integración del sistema. Entre estos se encuentran el <strong>SDK</strong>, la <strong>documentación oficial</strong> y <strong>herramientas de compilación</strong>.</p>
+<p>El paquete contiene la siguiente estructura de directorios:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>v200/v2x-files/
-├── BSP
-├── DOC
-├── LTS
-└── SDK
+├── BSP   # Archivos relacionado con el soporta hardware
+├── DOC   # Documentación oficial y guías de instalación
+├── LTS   # Versiones de soporte extendido (a largo plazo)
+└── SDK   # Kit de desarrollo de software (Software Develepment Kit)
 4 directories, 0 files
 </pre></div>
 </div>
+<section id="documentacion">
+<h4>Documentación<a class="headerlink" href="#documentacion" title="Link to this heading">¶</a></h4>
+<p>La <strong>documentación</strong> se encuentra en la carpeta <code class="docutils literal notranslate"><span class="pre">DOC</span></code>, que contiene los siguiente recursos:</p>
+<ul class="simple">
+<li><p>Guía de instalación en formato PDF.</p></li>
+<li><p>Documentación oficial en formato <code class="docutils literal notranslate"><span class="pre">HTML</span></code>.</p></li>
+</ul>
+<p>Por otro lado, el <strong>SDK</strong>, en la carpeta <code class="docutils literal notranslate"><span class="pre">SDK</span></code>, proporciona los archivos y herramientas que se describen a continuación.</p>
+</section>
+<section id="scripts-de-instalacion-y-actualizacion">
+<h4>Scripts de instalación y actualización<a class="headerlink" href="#scripts-de-instalacion-y-actualizacion" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">352UC-remote_upgrade-v2.0.1.tar.gz</span></code> → script para la actualización remota de los protocolos US.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">poky-craton2-glibc-x86_64-unex-image-full-rootfs-cortexa7t2hf-neon-atk42xx-vtx352-nand-toolchain-4.0.16.sh</span></code> → script de instalación y configuración del <em>toolchain</em> de desarrollo necesario para compilar aplicaciones en plataformas específicas. Incluye compiladores cruzados y herramientas adicionales para facilitar la compilación en arquitecturas diferentes.</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>En la carpeta de documentación (DOC) podemos encontrar la documentación de instalación en formato PDF y la documentación oficial en formato <code class="docutils literal notranslate"><span class="pre">html</span></code>.</p>
+<p>Este último script de instalación — que contiene un compilador cruzado — se utilizará cuando se quieran compilar programas para ser ejecutados sobre el chip Craton2, siendo estos desarrollados en arquitectura <code class="docutils literal notranslate"><span class="pre">armv7a</span></code>, <code class="docutils literal notranslate"><span class="pre">armv8a</span></code> o <code class="docutils literal notranslate"><span class="pre">x86-64</span></code>.</p>
 </div>
-<p>En concreto, el SDK trae:</p>
-<ol class="arabic simple">
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">${PRODUCT_NAME}-remote_upgrade-${SDK_VERSION}.sh</span></code></dt><dd><ul class="simple">
-<li><p>Un <strong>script</strong> para <strong>actualizar</strong> la pila de protocolos US de forma remota.</p></li>
+</section>
+<section id="componentes-del-sdk">
+<h4>Componentes del SDK<a class="headerlink" href="#componentes-del-sdk" title="Link to this heading">¶</a></h4>
+<p>Contiene el conjunto de ficheros y herramientas necesarias para desarrollar programas que se ejecuten directamente sobre el chip Craton2, sin utilizar V2Xcast.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">us_protocol_cv2x-craton2-v2.0.1.tgz</span></code> → contiene el SDK de US para la plataforma <em>Craton2</em>.</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">us_protocol_${dsrc/cv2x}-craton2-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
-<li><p><strong>US SDK</strong> para la plataforma <strong>Craton2</strong>.</p></li>
+</section>
+<section id="paquetes-v2xcast">
+<h4>Paquetes V2Xcast<a class="headerlink" href="#paquetes-v2xcast" title="Link to this heading">¶</a></h4>
+<p>Contienen los fichero y herramientas necesarias para desarrollar programas haciendo uso de la API que proporciona V2Xcast Service.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-armv7a_32_linux-v2.0.1.tgz</span></code> → V2Xcast para plataformas <em>ARMv7a</em>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-armv8a_64_linux-v2.0.1.tgz</span></code> → V2Xcast para plataformas <em>ARMv8a</em>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-x86_64_linux-v2.0.1.tgz</span></code> → V2Xcast para plataformas <em>x86-64</em>.</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-armv7a_32_linux-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
-<li><p><strong>US V2Xcast</strong> para las plataformas <strong>ARMv7a</strong>.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-armv8a_64_linux-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
-<li><p><strong>US V2xcast</strong> para las plataformas <strong>ARMv8a</strong>.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">us_v2xcast_sdk-x86_64_linux-${SDK_VERSION}.tgz</span></code></dt><dd><ul class="simple">
-<li><p><strong>US V2Xcast</strong> para las plataformas <strong>X86-64</strong>.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">poky-${TOOLCHAIN_TYPE}-toolchain-${TOOLCHAIN_VERSION}.sh</span></code></dt><dd><ul class="simple">
-<li><p>Un <strong>script</strong> para <strong>instalar y configurar</strong> el <em>toolchain</em> de desarrollo necesario para compilar aplicaciones en plataformas específicas. El <em>toolchain</em> es un conjunto de herramientas que incluyen compiladores cruzados y otros recursos.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ol>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>Los tipos <code class="docutils literal notranslate"><span class="pre">armv7a</span></code>, <code class="docutils literal notranslate"><span class="pre">armv8a</span></code> y <code class="docutils literal notranslate"><span class="pre">x86-64</span></code> hacen referencia los tres tipo de arquitecturas más comunes en equipos de usuario (PCs, por ejemplo). En equipos GNU/Linux, ejecutando el comando <code class="docutils literal notranslate"><span class="pre">uname</span> <span class="pre">-u</span></code> podemos saber cual es la arquitectura del equipo. A lo largo del proyecto es importante saber donde se compilan y ejecutan los distintos programas y asegurarse de que estan orientados al tipo de arquitectura deseado.</p>
+<p>Para identificar la arquitectura de un equipo GNU/Linux, se puede utilizar el siguiente comando: <code class="docutils literal notranslate"><span class="pre">uname</span> <span class="pre">-m</span></code>. A lo largo del proyecto es importante saber donde se compilan y ejecutan los distintos programas y asegurarse de que estan orientados al tipo de arquitectura deseado.</p>
 </div>
-<div class="admonition caution">
-<p class="admonition-title">Prudencia</p>
-<p>En lo que respecta a la instalación física de los módulos, existe una guía de instalación dentro del paquete. A modo de resumen, los modulos se montan sobre una adaptador a interfaz USB-A que se conecta directamente a cualquier equipo. Los módulos poseen tres puntos para la <strong>colocación de antenas</strong>, dos elevados superiormente para poner antenas de <strong>recepción y transmisión de mensajes</strong> generales y otra para el <strong>servicio GNSS de posicionamiento</strong>. Esta última debe colocarse fuera de cualquier <strong>recinto cerrado</strong> (fuera de cualquier edificio).</p>
-</div>
+</section>
+</section>
+<section id="protocolos-y-estandares-del-us-sdk">
+<h3>Protocolos y estándares del US SDK<a class="headerlink" href="#protocolos-y-estandares-del-us-sdk" title="Link to this heading">¶</a></h3>
 <p>Por último, es importante mencionar que Unex implementa funciones V2X basadas en la capa de protocolo internacionales y versiones de estándares relacionados. En el caso de los servicios US, implementa los siguientes protocolos y estándares.</p>
 <div class="table-wrapper colwidths-given docutils container">
 <table class="docutils align-default">
@@ -385,6 +379,8 @@
 </tbody>
 </table>
 </div>
+</section>
+</section>
 <section id="arquitectura">
 <h2>Arquitectura<a class="headerlink" href="#arquitectura" title="Link to this heading">¶</a></h2>
 <p>En la siguiente figura se pueden observar las partes de las que se compone la solución software de los módulos Unex. Dicha arquitectura se compone de: <strong>V2X facility modules</strong>, <strong>V2X network and transport modules</strong>, <strong>V2X security modules</strong>, <strong>V2Xcast service modules</strong> y <strong>otros módulos</strong>.</p>
@@ -466,6 +462,18 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Descripción general</a><ul>
+<li><a class="reference internal" href="#introduccion">Introducción</a><ul>
+<li><a class="reference internal" href="#funcionamiento-de-v2xcast-services-api">Funcionamiento de <strong>V2Xcast Services API</strong></a></li>
+<li><a class="reference internal" href="#entorno-de-desarrollo-del-sistema">Entorno de Desarrollo del Sistema</a><ul>
+<li><a class="reference internal" href="#documentacion">Documentación</a></li>
+<li><a class="reference internal" href="#scripts-de-instalacion-y-actualizacion">Scripts de instalación y actualización</a></li>
+<li><a class="reference internal" href="#componentes-del-sdk">Componentes del SDK</a></li>
+<li><a class="reference internal" href="#paquetes-v2xcast">Paquetes V2Xcast</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#protocolos-y-estandares-del-us-sdk">Protocolos y estándares del US SDK</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#arquitectura">Arquitectura</a></li>
 <li><a class="reference internal" href="#conexion-con-el-modulo">Conexión con el módulo</a></li>
 <li><a class="reference internal" href="#configuracion-de-la-antena-gnss">Configuración de la antena GNSS</a></li>
